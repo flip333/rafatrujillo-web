@@ -1,26 +1,241 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
+/* ─── shadcn tokens (requeridos por button/badge) ────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--rafa-surface);
+  --color-muted-foreground: var(--rafa-muted);
+  --color-accent: var(--rafa-surface-2);
+  --color-accent-foreground: var(--rafa-text);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Paleta del proyecto — permanente dark ──────────────────── */
+:root {
+  /* shadcn base (dark permanente — no hay modo claro) */
+  --background: #0a0a0a;
+  --foreground: #f0ece4;
+  --primary:    #c8b08a;
+  --primary-foreground: #0a0a0a;
+  --border:     #222222;
+  --input:      #222222;
+  --ring:       #c8b08a;
+  --radius:     0.25rem;
+
+  /* tokens propios del proyecto */
+  --rafa-bg:        #0a0a0a;
+  --rafa-surface:   #111111;
+  --rafa-surface-2: #1a1a1a;
+  --rafa-border:    #222222;
+  --rafa-text:      #f0ece4;
+  --rafa-muted:     #888888;
+  --rafa-accent:    #c8b08a;
+  --rafa-accent-dim:#8a7560;
+  --rafa-spotify:   #1DB954;
+}
+
+/* ─── Reset base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--rafa-bg);
+  color: var(--rafa-text);
+  font-family: var(--font-inter, system-ui, sans-serif);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ─── Film grain — sobre toda la web ────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── Fotos — tratamiento warm B&W ──────────────────────────── */
+.photo-bw {
+  filter: grayscale(85%) sepia(15%) contrast(1.08) brightness(0.94);
+}
+.photo-bw-hero {
+  filter: grayscale(80%) sepia(20%) contrast(1.1) brightness(0.88);
+}
+
+/* ─── Polaroid frame ─────────────────────────────────────────── */
+.polaroid {
+  background: white;
+  padding: 10px 10px 36px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.65);
+}
+
+/* ─── Ghost text de fondo ────────────────────────────────────── */
+.ghost {
+  font-family: var(--font-bebas, sans-serif);
+  font-size: clamp(7rem, 22vw, 18rem);
+  line-height: 0.9;
+  opacity: 0.035;
+  pointer-events: none;
+  user-select: none;
+  color: var(--rafa-text);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+}
+
+/* ─── Navbar con frosted glass al scroll ─────────────────────── */
+.nav-blur {
+  background: rgba(10,10,10,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--rafa-border);
+}
+
+/* ─── Hover de filas de tracklist ────────────────────────────── */
+.track-row {
+  border-bottom: 1px solid var(--rafa-border);
+  transition: background-color 120ms ease;
+}
+.track-row:hover {
+  background-color: var(--rafa-surface-2);
+}
+.track-row:hover .track-num {
+  color: var(--rafa-accent);
+}
+
+/* ─── Botones streaming ──────────────────────────────────────── */
+.btn-spotify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border: 1px solid var(--rafa-spotify);
+  color: var(--rafa-spotify);
+  font-family: var(--font-inter, system-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: background-color 180ms ease, color 180ms ease;
+  text-decoration: none;
+}
+.btn-spotify:hover {
+  background-color: var(--rafa-spotify);
+  color: #000;
+}
+
+.btn-apple {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border: 1px solid var(--rafa-accent);
+  color: var(--rafa-accent);
+  font-family: var(--font-inter, system-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: background-color 180ms ease, color 180ms ease;
+  text-decoration: none;
+}
+.btn-apple:hover {
+  background-color: var(--rafa-accent);
+  color: #000;
+}
+
+/* ─── Cards de singles ───────────────────────────────────────── */
+.single-card {
+  background-color: var(--rafa-surface);
+  transition: background-color 150ms ease;
+}
+.single-card:hover {
+  background-color: var(--rafa-surface-2);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 3px; }
+::-webkit-scrollbar-track  { background: var(--rafa-bg); }
+::-webkit-scrollbar-thumb  { background: var(--rafa-border); border-radius: 2px; }
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: rgba(200,176,138,0.25);
+  color: var(--rafa-text);
+}
+
+/* ─── Custom cursor — desktop con puntero fino ───────────────── */
+html[data-cursor],
+html[data-cursor] *,
+html[data-cursor] a,
+html[data-cursor] button,
+html[data-cursor] [role="button"] {
+  cursor: none !important;
+}
+
+/* ─── Email signup inputs ────────────────────────────────────── */
+.email-input::placeholder { color: var(--rafa-muted); }
+.email-input:focus {
+  border-color: rgba(200,176,138,0.45) !important;
+}
+
+.btn-subscribe:not(:disabled):hover {
+  background-color: var(--rafa-accent) !important;
+  color: #000 !important;
+}
+
+/* ─── Plays count — visible solo en desktop ──────────────────── */
+@media (min-width: 640px) {
+  .plays-count { display: inline !important; }
+}
+
+/* ─── Track row active state ─────────────────────────────────── */
+.track-row:focus-visible { outline: 1px solid var(--rafa-accent); }
+
+/* ─── Video card hover ───────────────────────────────────────── */
+.video-card {
+  transition: opacity 150ms ease;
+}
+.video-card:hover {
+  opacity: 0.88;
+}
+
+/* ─── Popup close button hover ──────────────────────────────── */
+.popup-close:hover { color: var(--rafa-text) !important; }
+
+/* ─── Singles con imagen en /musica ──────────────────────────── */
+.single-card-img {
+  transition: transform 220ms ease;
+}
+.single-card-img:hover {
+  transform: scale(1.03);
+}
+.single-cover-overlay {
+  transition: opacity 180ms ease;
+}
+.single-card-img:hover .single-cover-overlay {
+  opacity: 0.85;
 }
