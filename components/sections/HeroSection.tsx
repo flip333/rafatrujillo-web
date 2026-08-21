@@ -7,7 +7,7 @@ export function HeroSection() {
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: '100svh', minHeight: 620 }}
+      style={{ height: '100svh', minHeight: 620, zIndex: 10000 }}
     >
       {/* Foto — zoom-out al cargar */}
       <motion.div
@@ -17,12 +17,12 @@ export function HeroSection() {
         transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <Image
-          src={ARTIST.images.profile640}
+          src={ARTIST.images.hero}
           alt={ARTIST.fullName}
           fill
           priority
           sizes="100vw"
-          className="object-cover object-top photo-bw-hero"
+          className="object-cover hero-photo"
         />
       </motion.div>
 
@@ -35,7 +35,7 @@ export function HeroSection() {
         }}
       />
 
-      {/* Meta top-right — Colombia · Alternativa · Cruzao Music */}
+      {/* Meta top-right — Manizales · Colombia · Indie Pop-Rock */}
       <motion.div
         className="absolute top-20 right-6 text-right hidden sm:block"
         initial={{ opacity: 0 }}
@@ -52,9 +52,9 @@ export function HeroSection() {
             fontFamily: 'var(--font-inter)',
           }}
         >
+          {ARTIST.city}<br />
           {ARTIST.country}<br />
-          {ARTIST.genre}<br />
-          {ARTIST.label}
+          {ARTIST.genre}
         </p>
       </motion.div>
 

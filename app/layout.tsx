@@ -29,18 +29,19 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://rafatrujillo.vercel.app'),
   title: 'rafatrujillo',
-  description: 'Música alternativa colombiana. Debut "Ya no es mi canción, y otras películas" — disponible en Spotify.',
-  keywords: ['rafatrujillo', 'música alternativa', 'colombia', 'cruzao music', 'indie'],
+  description: 'Artista y productor de Manizales, Colombia. Indie Pop-Rock y cinematografía. Debut "Ya no es mi canción, y otras películas" — disponible en Spotify.',
+  keywords: ['rafatrujillo', 'indie pop-rock', 'manizales', 'colombia', 'indie', 'equo'],
   openGraph: {
     title: 'rafatrujillo',
-    description: 'Música alternativa colombiana.',
+    description: 'Artista y productor de Manizales, Colombia. Indie Pop-Rock y cinematografía.',
     url: 'https://rafatrujillo.vercel.app',
     type: 'website',
     images: [{
-      url: 'https://i.scdn.co/image/ab6761610000e5eb2de274b6bf5dc6d2fb2d07bd',
-      width: 640,
-      height: 640,
+      url: '/fotos/foto-press-01.jpg',
+      width: 1200,
+      height: 630,
     }],
   },
 }

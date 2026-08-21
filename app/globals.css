@@ -84,6 +84,33 @@ body::after {
   filter: grayscale(80%) sepia(20%) contrast(1.1) brightness(0.88);
 }
 
+/* ─── Media importante (hero, portadas) ──────────────────────────
+   Se muestran a todo color (sin B&W/sepia) y POR ENCIMA del grano.
+   El grano es un overlay global (body::after, z-index 9999); para
+   excluirlo de estas piezas las elevamos por encima de él. Navbar y
+   menú se suben por encima de la media (ver z-index más abajo). */
+.media-clean {
+  position: relative;
+  z-index: 10000;
+}
+.media-clean img,
+img.media-clean-img {
+  filter: none !important;
+}
+
+/* ─── Hero — encuadre adaptado a la composición (sujeto centrado) ──
+   Móvil: la imagen vertical se ve casi completa; centramos horizontal.
+   Desktop: se recorta la franja superior → rostro + torso a la vista. */
+.hero-photo {
+  object-position: center 28%;
+}
+@media (min-width: 640px) {
+  .hero-photo { object-position: center 22%; }
+}
+@media (min-width: 1024px) {
+  .hero-photo { object-position: center 18%; }
+}
+
 /* ─── Polaroid frame ─────────────────────────────────────────── */
 .polaroid {
   background: white;
@@ -226,7 +253,21 @@ html[data-cursor] [role="button"] {
 /* ─── Popup close button hover ──────────────────────────────── */
 .popup-close:hover { color: var(--rafa-text) !important; }
 
-/* ─── Singles con imagen en /musica ──────────────────────────── */
+/* ─── Landing de una sola página: anclas con offset del navbar ── */
+.section-anchor { scroll-margin-top: 72px; }
+
+/* ─── Filas de canción → pista de "ver letra" ────────────────── */
+.lyrics-row .lyrics-hint {
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.lyrics-row:hover .lyrics-hint,
+.lyrics-row:focus-visible .lyrics-hint {
+  opacity: 1;
+}
+.lyrics-link:hover { color: var(--rafa-accent) !important; }
+
+/* ─── Singles con imagen (grid interactivo) ──────────────────── */
 .single-card-img {
   transition: transform 220ms ease;
 }

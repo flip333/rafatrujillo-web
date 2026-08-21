@@ -2,9 +2,11 @@ import Link from 'next/link'
 import { ARTIST } from '@/lib/artist-data'
 
 const NAV = [
-  { label: 'Inicio',  href: '/'        },
-  { label: 'Música',  href: '/musica'  },
-  { label: 'Sobre',   href: '/sobre'   },
+  { label: 'Inicio',  href: '#inicio'      },
+  { label: 'Sobre',   href: '#sobre'       },
+  { label: 'Música',  href: '#discografia' },
+  { label: 'Equo',    href: '#equo'        },
+  { label: 'Videos',  href: '#videos'      },
 ]
 
 const STREAMING = [
@@ -61,8 +63,8 @@ export function Footer() {
             <span style={COL_HEAD}>Artista</span>
             <p style={{ ...COL_LINK, lineHeight: 1.8 }}>
               {ARTIST.fullName}<br />
-              {ARTIST.label}<br />
-              {ARTIST.country} · {ARTIST.genre}
+              {ARTIST.city} · {ARTIST.country}<br />
+              {ARTIST.genre}
             </p>
           </div>
         </div>
@@ -75,7 +77,7 @@ export function Footer() {
             {ARTIST.name}
           </span>
           <p style={{ fontSize: '0.75rem', color: 'var(--rafa-muted)', fontFamily: 'var(--font-inter)' }}>
-            © 2025 rafatrujillo / {ARTIST.label}
+            © 2025 rafatrujillo
           </p>
         </div>
       </div>

@@ -1,43 +1,62 @@
-import { HeroSection }       from '@/components/sections/HeroSection'
-import { LatestRelease }     from '@/components/sections/LatestRelease'
-import { InteractiveTracks } from '@/components/sections/InteractiveTracks'
-import { EmailSignup }       from '@/components/sections/EmailSignup'
-import { Videoclips }        from '@/components/sections/Videoclips'
-import { BioTeaser }         from '@/components/sections/BioTeaser'
-import { SectionDivider }    from '@/components/shared/SectionDivider'
+import { HeroSection }    from '@/components/sections/HeroSection'
+import { AboutSection }   from '@/components/sections/AboutSection'
+import { Discography }    from '@/components/sections/Discography'
+import { EquoSection }    from '@/components/sections/EquoSection'
+import { Videoclips }     from '@/components/sections/Videoclips'
+import { EmailSignup }    from '@/components/sections/EmailSignup'
+import { SectionDivider } from '@/components/shared/SectionDivider'
+import { SONG_KEYWORDS }  from '@/lib/artist-data'
 
 export default function HomePage() {
   return (
     <>
-      <HeroSection />
+      {/* Hero */}
+      <div id="inicio">
+        <HeroSection />
+      </div>
 
-      <SectionDivider
-        text="MÚSICA · YA NO ES MI CANCIÓN · CRUZAO MUSIC · ALTERNATIVA · COLOMBIA"
-      />
+      <SectionDivider text={SONG_KEYWORDS} />
 
-      <LatestRelease />
+      {/* Sobre el artista */}
+      <section id="sobre" className="section-anchor py-24 px-6">
+        <AboutSection />
+      </section>
 
-      <SectionDivider
-        text="CANCIONES · ESCUCHAR · DESCUBRIR · los lunes pienso · sin tenerte a ti · cuento"
-        reverse
-      />
+      {/* Contacto / lista de correo — justo después de "Sobre mí" */}
+      <div id="contacto" className="section-anchor">
+        <EmailSignup />
+      </div>
 
-      <InteractiveTracks />
+      <SectionDivider text={SONG_KEYWORDS} reverse />
 
-      <EmailSignup />
+      {/* Discografía interactiva (clic → letra) */}
+      <section id="discografia" className="section-anchor py-24 px-6">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <Discography />
+        </div>
+      </section>
 
-      <SectionDivider
-        text="VIDEO · YOUTUBE · ENTREVISTAS · VIDEOCLIPS · LANZAMIENTOS · 2025"
-      />
+      <SectionDivider text={SONG_KEYWORDS} />
 
-      <Videoclips />
+      {/* Equo */}
+      <section
+        id="equo"
+        className="section-anchor py-24 px-6"
+        style={{
+          backgroundColor: 'var(--rafa-surface)',
+          borderTop: '1px solid var(--rafa-border)',
+          borderBottom: '1px solid var(--rafa-border)',
+        }}
+      >
+        <EquoSection />
+      </section>
 
-      <SectionDivider
-        text="ALTERNATIVA · INDIE · CRUZAO MUSIC · RAFATRUJILLO · 2025"
-        reverse
-      />
+      <SectionDivider text={SONG_KEYWORDS} reverse />
 
-      <BioTeaser />
+      {/* Videoclips */}
+      <div id="videos" className="section-anchor">
+        <Videoclips />
+      </div>
     </>
   )
 }

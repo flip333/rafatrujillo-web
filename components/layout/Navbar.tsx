@@ -6,9 +6,11 @@ import { Menu, X } from 'lucide-react'
 import { ARTIST } from '@/lib/artist-data'
 
 const NAV_LINKS = [
-  { label: 'Inicio',  href: '/'       },
-  { label: 'Música',  href: '/musica' },
-  { label: 'Sobre',   href: '/sobre'  },
+  { label: 'Inicio',  href: '#inicio'      },
+  { label: 'Sobre',   href: '#sobre'       },
+  { label: 'Música',  href: '#discografia' },
+  { label: 'Equo',    href: '#equo'        },
+  { label: 'Videos',  href: '#videos'      },
 ]
 
 export function Navbar() {
@@ -31,7 +33,7 @@ export function Navbar() {
     <>
       {/* ── Barra ── */}
       <nav
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-400 ${scrolled ? 'nav-blur' : ''}`}
+        className={`fixed top-0 inset-x-0 z-[10010] transition-all duration-400 ${scrolled ? 'nav-blur' : ''}`}
       >
         <div
           className="flex items-center justify-between px-6 py-4"
@@ -49,7 +51,7 @@ export function Navbar() {
 
           {/* Logo / nombre */}
           <Link
-            href="/"
+            href="#inicio"
             style={{
               fontFamily: 'var(--font-bebas)',
               fontSize: '0.95rem',
@@ -93,7 +95,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22 }}
-            className="fixed inset-0 z-[100] flex flex-col"
+            className="fixed inset-0 z-[10020] flex flex-col"
             style={{ backgroundColor: 'var(--rafa-bg)' }}
           >
             {/* Cabecera del overlay */}
