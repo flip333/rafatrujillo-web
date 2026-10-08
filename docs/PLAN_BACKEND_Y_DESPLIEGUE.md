@@ -173,3 +173,20 @@ Ver `.env.example`. Ninguna lleva el prefijo `NEXT_PUBLIC_`.
 | `RESEND_API_KEY`, `RESEND_SEGMENT_ID` | Resend |
 | `EMAIL_FROM`, `EMAIL_REPLY_TO` | Dominio verificado en Resend |
 | `IP_HASH_SALT`, `CRON_SECRET` | `openssl rand -hex 32` |
+
+---
+
+## 9. GEO · posicionamiento en buscadores con IA (8 oct 2026)
+
+| Pieza | Dónde | Para qué |
+|---|---|---|
+| Rastreadores de IA permitidos | `app/robots.ts` | GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, Google-Extended, Applebot, Bingbot… pueden leer y citar el sitio |
+| `/llms.txt` y `/llms-full.txt` | `lib/llms.ts` | Resumen en Markdown (bio, discografía, videos, servicios, FAQ; la versión full incluye letras). Se regenera solo desde `lib/artist-data.ts` |
+| Grafo schema.org | `lib/structured-data.ts` | Persona ↔ rafatrujillo ↔ Equo ↔ álbumes/canciones/videos ↔ servicios, con `@id` estables |
+| Preguntas frecuentes + `FAQPage` | `lib/faq.ts`, sección `#preguntas` | Respuestas autocontenidas que la IA puede citar |
+| Títulos descriptivos | `app/layout.tsx`, `app/en/page.tsx` | El `<title>` resume quién es y el último lanzamiento |
+| IndexNow | `scripts/indexnow.mjs` | Avisa a Bing (→ ChatGPT Search, Copilot) tras cada despliegue: **`npm run indexnow`** |
+
+**Rutina en cada lanzamiento:** actualizar `lib/artist-data.ts` (y `lib/faq.ts` si cambia el “último lanzamiento”) → desplegar → `npm run indexnow`.
+
+**Fuera del sitio (lo que más pesa para la IA):** Bing Webmaster Tools (importar desde Search Console), perfiles verificados en Spotify for Artists / Apple Music for Artists / YouTube (canal oficial de artista), Wikidata y MusicBrainz, y menciones en prensa/blogs (como la nota de GermaDor).
