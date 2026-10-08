@@ -6,8 +6,7 @@ import { Footer }           from '@/components/layout/Footer'
 import { CustomCursor }     from '@/components/shared/CustomCursor'
 import { EmailPopupModal }  from '@/components/shared/EmailPopupModal'
 import { ARTIST, LATEST_RELEASE, ALBUM_DEBUT, EP_01, EQUO, YOUTUBE_VIDEOS } from '@/lib/artist-data'
-import { Analytics }        from '@vercel/analytics/next'
-import { SpeedInsights }    from '@vercel/speed-insights/next'
+import { VercelInsights }   from '@/components/shared/VercelInsights'
 import { AnalyticsTracker } from '@/components/shared/AnalyticsTracker'
 import { MusicPlayer }      from '@/components/shared/MusicPlayer'
 import { BackToTop }        from '@/components/shared/BackToTop'
@@ -135,9 +134,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BackToTop />
         <TapEffects />
         <AnalyticsTracker />
-        {/* Los scripts de Vercel solo existen en despliegues de Vercel */}
-        {process.env.VERCEL && <Analytics />}
-        {process.env.VERCEL && <SpeedInsights />}
+        <VercelInsights />
       </body>
     </html>
   )
