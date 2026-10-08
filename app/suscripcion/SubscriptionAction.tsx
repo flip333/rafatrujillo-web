@@ -9,7 +9,7 @@ const COPY = {
     text: 'Un clic más y quedas en la lista de rafatrujillo.',
     button: 'Confirmar',
     endpoint: '/api/subscribe/confirm',
-    done: 'Listo, ya estás en la lista. Te enviamos un correo de bienvenida.',
+    done: 'Listo, ya estás en la lista. Gracias por estar aquí.',
   },
   unsubscribe: {
     title: 'Darte de baja',

@@ -77,6 +77,7 @@ export const LATEST_RELEASE = {
   releaseLabel:'25 de septiembre de 2026',
   cover:       '/fotos/portada-borracho-y-loco.jpg',
   spotifyUrl:  'https://open.spotify.com/album/4nP7yOmEMKuxeePJHO02E2',
+  appleMusicUrl: 'https://music.apple.com/co/album/borracho-y-loco/6814494737',
   youtubeId:   'bYalxExKqP0',
 } as const
 

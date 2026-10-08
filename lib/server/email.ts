@@ -36,7 +36,8 @@ function unsubscribeHeaders(token: string) {
   }
 }
 
-/* 1) Doble opt-in: confirma que el correo es real y que la persona lo pidió. */
+/* 1) Bienvenida + doble opt-in: es el primer correo que recibe la persona.
+      Da la bienvenida y pide confirmar (confirma que el correo es real). */
 export async function sendConfirmation(to: string, name: string | null, confirmToken: string) {
   if (!isEmailConfigured()) return { skipped: true as const }
   const hi = name ? `Hola ${esc(name)},` : 'Hola,'
@@ -44,34 +45,56 @@ export async function sendConfirmation(to: string, name: string | null, confirmT
     from: env.emailFrom,
     to,
     replyTo: env.emailReplyTo || undefined,
-    subject: 'Confirma tu suscripción — rafatrujillo',
-    html: layout(`${hi}<br><br>Gracias por querer estar cerca de la música de rafatrujillo.
-Confirma tu correo para empezar a recibir nuevas canciones, fechas y detrás de cámaras.
-<br>${button(confirmUrl(confirmToken), 'Confirmar suscripción')}<br>
+    subject: 'Bienvenido a la lista de rafatrujillo — confirma tu correo',
+    html: layout(`${hi}<br><br>
+<span style="font-family:Georgia,serif;font-style:italic;font-size:18px;color:#f0ece4">Bienvenido a la lista de rafatrujillo.</span><br><br>
+Gracias por querer estar cerca de esta música. Aquí vas a encontrar las canciones antes que nadie,
+lo que pasa detrás de cámaras y las historias detrás de cada lanzamiento de <em>${esc(MOSQUITO_BEACH.title)}</em>.
+<br><br>Solo falta un paso: confirma tu correo para empezar.
+<br>${button(confirmUrl(confirmToken), 'Confirmar y entrar')}<br>
 Si no fuiste tú, ignora este mensaje: no te escribiremos de nuevo.`),
-    text: `${hi}\n\nConfirma tu suscripción a la lista de rafatrujillo:\n${confirmUrl(confirmToken)}\n\nSi no fuiste tú, ignora este mensaje.`,
+    text: `${hi}\n\nBienvenido a la lista de rafatrujillo. Gracias por querer estar cerca de esta música.\n\nSolo falta un paso: confirma tu correo para empezar:\n${confirmUrl(confirmToken)}\n\nSi no fuiste tú, ignora este mensaje.`,
     tags: [{ name: 'type', value: 'confirmation' }],
   })
 }
 
-/* 2) Automatización de bienvenida: se envía al confirmar. */
-export async function sendWelcome(to: string, name: string | null, unsubToken: string) {
+/* 2) Automatización post-confirmación: se programa en Resend para 1 minuto
+      después de confirmar. Invita a escuchar el último lanzamiento. */
+export async function sendReleaseInvite(to: string, name: string | null, unsubToken: string, delayMs = 60_000) {
   if (!isEmailConfigured()) return { skipped: true as const }
-  const hi = name ? `Hola ${esc(name)},` : 'Hola,'
+  const hi = name ? `${esc(name)}, ya` : 'Ya'
+  const ytUrl = `https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}`
+  const platform = (href: string, label: string) =>
+    `<a href="${href}" style="display:block;margin:0 0 10px;padding:13px 18px;border:1px solid #2a2a2a;background:#141414;color:#f0ece4;text-decoration:none;font-size:14px">${label} <span style="color:#c8b08a;float:right">→</span></a>`
+
   return client().emails.send({
     from: env.emailFrom,
     to,
     replyTo: env.emailReplyTo || undefined,
-    subject: `Bienvenido — escucha “${LATEST_RELEASE.title}”`,
+    subject: `Escucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}`,
+    scheduledAt: new Date(Date.now() + delayMs).toISOString(),
     headers: unsubscribeHeaders(unsubToken),
-    html: layout(`${hi}<br><br>Ya estás en la lista. Gracias por estar aquí.<br><br>
-<em>${esc(MOSQUITO_BEACH.title)}</em>, el segundo álbum de rafatrujillo, ya empezó:
-su primer sencillo es <strong style="color:#f0ece4">“${esc(LATEST_RELEASE.title)}”</strong> — ${esc(LATEST_RELEASE.credit)}.
-<br>${button(LATEST_RELEASE.spotifyUrl, 'Escuchar en Spotify')}<br>
-También puedes ver el <a href="https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}" style="color:#c8b08a">video oficial</a>
-y seguir el proceso en <a href="${ARTIST.urls.instagram}" style="color:#c8b08a">Instagram</a>.`, unsubToken),
-    text: `${hi}\n\nYa estás en la lista. Escucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}: ${LATEST_RELEASE.spotifyUrl}\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
-    tags: [{ name: 'type', value: 'welcome' }],
+    html: layout(`${hi} eres parte de la lista. Gracias por confirmar.<br><br>
+Para empezar, te dejamos el último lanzamiento:
+<strong style="color:#f0ece4">“${esc(LATEST_RELEASE.title)}”</strong> — ${esc(LATEST_RELEASE.credit)},
+el primer sencillo de <em>${esc(MOSQUITO_BEACH.title)}</em>, el segundo álbum de rafatrujillo.
+<br><br>
+<a href="${LATEST_RELEASE.spotifyUrl}" style="display:block;margin:0 0 22px"><img src="${env.siteUrl}${LATEST_RELEASE.cover}" alt="Portada de ${esc(LATEST_RELEASE.title)}" width="520" style="display:block;width:100%;max-width:520px;height:auto;border:0"></a>
+${platform(LATEST_RELEASE.spotifyUrl, 'Escuchar en Spotify')}
+${platform(LATEST_RELEASE.appleMusicUrl, 'Escuchar en Apple Music')}
+${platform(ytUrl, 'Ver el video oficial en YouTube')}
+<br>
+<span style="color:#f0ece4">Una promesa:</span> no vamos a llenar tu correo de spam.
+Solo te escribiremos cuando valga la pena.<br><br>
+Y por ser parte de la lista vas a participar en <span style="color:#c8b08a">dinámicas</span>,
+<span style="color:#c8b08a">giveaways</span> y <span style="color:#c8b08a">contenido exclusivo</span>
+que no vas a encontrar en ningún otro lugar.<br><br>
+Nos escuchamos pronto,<br>
+<span style="font-family:'Courier New',monospace;font-weight:bold;color:#f0ece4">rafatrujillo</span><br><br>
+<a href="${ARTIST.urls.instagram}" style="color:#c8b08a">Instagram</a> ·
+<a href="${env.siteUrl}" style="color:#c8b08a">rafatrujillo.xyz</a>`, unsubToken),
+    text: `${hi} eres parte de la lista. Gracias por confirmar.\n\nEscucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}, primer sencillo de ${MOSQUITO_BEACH.title}:\nSpotify: ${LATEST_RELEASE.spotifyUrl}\nApple Music: ${LATEST_RELEASE.appleMusicUrl}\nYouTube: ${ytUrl}\n\nUna promesa: no vamos a llenar tu correo de spam. Por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo.\n\nrafatrujillo\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
+    tags: [{ name: 'type', value: 'release_invite' }],
   })
 }
 
