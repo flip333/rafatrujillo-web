@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { track } from '@/lib/analytics'
 
-const SECTIONS = ['lanzamiento', 'discografia', 'videos', 'sobre', 'equo', 'fechas', 'prensa', 'contacto']
+const SECTIONS = ['lanzamiento', 'discografia', 'videos', 'sobre', 'equo', 'fechas', 'prensa', 'preguntas', 'contacto']
 
 const PLATFORMS: [RegExp, string][] = [
   [/spotify\.com/, 'spotify'],

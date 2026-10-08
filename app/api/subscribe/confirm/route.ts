@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   // Automatización post-confirmación: se ejecuta después de responder
   after(async () => {
     try {
-      // Correo "escucha el último lanzamiento", programado 1 minuto después
+      // Correo "escucha el último lanzamiento", programado 30 segundos después
       if (!sub.welcome_sent_at) {
         const res = await sendReleaseInvite(sub.email, sub.name, sub.unsubscribe_token)
         if (!('error' in res && res.error)) {

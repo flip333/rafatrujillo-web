@@ -7,6 +7,7 @@ import { EquoSection }    from '@/components/sections/EquoSection'
 import { EventsSection, upcomingEvents } from '@/components/sections/EventsSection'
 import { PressSection }   from '@/components/sections/PressSection'
 import { EmailSignup }    from '@/components/sections/EmailSignup'
+import { FaqSection }     from '@/components/sections/FaqSection'
 import { SectionDivider } from '@/components/shared/SectionDivider'
 import { ParallaxBand }   from '@/components/shared/ParallaxBand'
 import { SONG_KEYWORDS }  from '@/lib/artist-data'
@@ -68,6 +69,10 @@ export function HomePage({ locale = 'es' }: { locale?: Locale }) {
 
       <section id="prensa" className="section-anchor py-24 px-6">
         <PressSection locale={locale} />
+      </section>
+
+      <section id="preguntas" className="section-anchor py-24 px-6" style={{ borderTop: '1px solid var(--rafa-border)' }}>
+        <FaqSection locale={locale} />
       </section>
 
       <div id="contacto" className="section-anchor">

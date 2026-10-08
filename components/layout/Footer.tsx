@@ -56,6 +56,7 @@ export function Footer() {
     { label: c.nav.videos,  id: 'videos'      },
     { label: c.nav.about,   id: 'sobre'       },
     { label: c.nav.equo,    id: 'equo'        },
+    { label: locale === 'en' ? 'FAQ' : 'Preguntas', id: 'preguntas' },
     { label: c.nav.contact, id: 'contacto'    },
   ]
   const streaming = [

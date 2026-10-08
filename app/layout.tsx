@@ -5,7 +5,7 @@ import { Navbar }           from '@/components/layout/Navbar'
 import { Footer }           from '@/components/layout/Footer'
 import { CustomCursor }     from '@/components/shared/CustomCursor'
 import { EmailPopupModal }  from '@/components/shared/EmailPopupModal'
-import { ARTIST, LATEST_RELEASE, ALBUM_DEBUT, EP_01, EQUO, YOUTUBE_VIDEOS } from '@/lib/artist-data'
+import { buildJsonLd }      from '@/lib/structured-data'
 import { VercelInsights }   from '@/components/shared/VercelInsights'
 import { AnalyticsTracker } from '@/components/shared/AnalyticsTracker'
 import { MusicPlayer }      from '@/components/shared/MusicPlayer'
@@ -55,12 +55,20 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'rafatrujillo',
+  title: 'rafatrujillo — cantautor y productor colombiano · “Borracho y Loco”',
   description: DESCRIPTION,
-  keywords: ['rafatrujillo', 'Borracho y Loco', 'Mosquito Beach', 'Equo', 'indie pop-rock', 'Manizales', 'Colombia', 'Ya no es mi canción, y otras películas'],
-  alternates: { canonical: '/', languages: { es: '/', en: '/en' } },
+  applicationName: 'rafatrujillo',
+  authors: [{ name: 'Rafa Trujillo', url: SITE_URL }],
+  creator: 'rafatrujillo',
+  category: 'music',
+  keywords: ['rafatrujillo', 'Rafa Trujillo', 'Borracho y Loco', 'Mosquito Beach', 'Equo', 'indie pop-rock colombiano', 'cantautor colombiano', 'Manizales', 'música para cine', 'música para publicidad', 'Ya no es mi canción, y otras películas'],
+  alternates: {
+    canonical: '/',
+    languages: { es: '/', en: '/en' },
+    types: { 'text/markdown': '/llms.txt' },
+  },
   openGraph: {
-    title: 'rafatrujillo',
+    title: 'rafatrujillo — “Borracho y Loco” (rafatrujillo x Equo)',
     description: DESCRIPTION,
     url: SITE_URL,
     siteName: 'rafatrujillo',
@@ -75,43 +83,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'rafatrujillo',
+    title: 'rafatrujillo — “Borracho y Loco” (rafatrujillo x Equo)',
     description: DESCRIPTION,
     images: ['/og.jpg'],
   },
 }
 
-// Datos estructurados (schema.org) para buscadores.
-const JSON_LD = {
-  '@context': 'https://schema.org',
-  '@type': 'MusicGroup',
-  name: ARTIST.name,
-  url: SITE_URL,
-  genre: ARTIST.genre,
-  foundingLocation: `${ARTIST.city}, ${ARTIST.country}`,
-  sameAs: [ARTIST.urls.spotify, ARTIST.urls.appleMusic, ARTIST.urls.instagram, ARTIST.urls.youtube],
-  image: `${SITE_URL}/og.jpg`,
-  member: [{ '@type': 'Person', name: ARTIST.fullName, alternateName: ARTIST.name }],
-  track: {
-    '@type': 'MusicRecording',
-    name: LATEST_RELEASE.title,
-    byArtist: LATEST_RELEASE.credit,
-    datePublished: LATEST_RELEASE.releaseDate,
-    url: LATEST_RELEASE.spotifyUrl,
-  },
-  album: [
-    { '@type': 'MusicAlbum', name: ALBUM_DEBUT.title, datePublished: String(ALBUM_DEBUT.year), numTracks: ALBUM_DEBUT.tracks.length, albumProductionType: 'StudioAlbum' },
-    { '@type': 'MusicAlbum', name: EP_01.title, datePublished: String(EP_01.year), numTracks: EP_01.tracks.length, albumReleaseType: 'EPRelease' },
-  ],
-  subjectOf: YOUTUBE_VIDEOS.slice(0, 3).map(v => ({
-    '@type': 'VideoObject',
-    name: v.title,
-    embedUrl: `https://www.youtube-nocookie.com/embed/${v.id}`,
-    thumbnailUrl: `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`,
-    uploadDate: String(v.year),
-  })),
-  knowsAbout: ['música para cine', 'música para publicidad', 'producción musical', EQUO.name],
-}
+// Datos estructurados: grafo de entidades (ver lib/structured-data.ts)
+const JSON_LD = buildJsonLd()
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -10,6 +10,7 @@ const COPY = {
     button: 'Confirmar',
     endpoint: '/api/subscribe/confirm',
     done: 'Listo, ya estás en la lista. Gracias por estar aquí.',
+    tip: 'En unos segundos te llega un correo con el último lanzamiento. Si no lo ves, revisa spam o promociones y márcalo como “No es spam”: así los próximos llegan directo a tu bandeja.',
   },
   unsubscribe: {
     title: 'Darte de baja',
@@ -17,6 +18,7 @@ const COPY = {
     button: 'Darme de baja',
     endpoint: '/api/unsubscribe',
     done: 'Te diste de baja. No recibirás más correos.',
+    tip: '',
   },
 } as const
 
@@ -56,9 +58,14 @@ export function SubscriptionAction({ action, token }: { action: keyof typeof COP
       </h1>
 
       {status === 'done' ? (
-        <p role="status" style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic', fontSize: '1.1rem', color: 'var(--rafa-accent)' }}>
-          {c.done}
-        </p>
+        <div role="status" className="flex flex-col gap-3">
+          <p style={{ fontFamily: 'var(--font-playfair)', fontStyle: 'italic', fontSize: '1.1rem', color: 'var(--rafa-accent)' }}>
+            {c.done}
+          </p>
+          {c.tip && (
+            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--rafa-muted)' }}>{c.tip}</p>
+          )}
+        </div>
       ) : (
         <>
           <p style={{ fontFamily: 'var(--font-inter)', color: 'var(--rafa-muted)', lineHeight: 1.7 }}>{c.text}</p>

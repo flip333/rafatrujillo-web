@@ -1,7 +1,7 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { env, isEmailConfigured } from './env'
-import { LATEST_RELEASE, MOSQUITO_BEACH, ARTIST } from '@/lib/artist-data'
+import { LATEST_RELEASE, MOSQUITO_BEACH } from '@/lib/artist-data'
 
 let resend: Resend | null = null
 const client = () => (resend ??= new Resend(env.resendApiKey))
@@ -52,20 +52,23 @@ Gracias por querer estar cerca de esta música. Aquí vas a encontrar las cancio
 lo que pasa detrás de cámaras y las historias detrás de cada lanzamiento de <em>${esc(MOSQUITO_BEACH.title)}</em>.
 <br><br>Solo falta un paso: confirma tu correo para empezar.
 <br>${button(confirmUrl(confirmToken), 'Confirmar y entrar')}<br>
+Para que mis correos no terminen en spam, agrega <span style="color:#f0ece4">hola@rafatrujillo.xyz</span> a tus contactos.<br><br>
 Si no fuiste tú, ignora este mensaje: no te escribiremos de nuevo.`),
-    text: `${hi}\n\nBienvenido a la lista de rafatrujillo. Gracias por querer estar cerca de esta música.\n\nSolo falta un paso: confirma tu correo para empezar:\n${confirmUrl(confirmToken)}\n\nSi no fuiste tú, ignora este mensaje.`,
+    text: `${hi}\n\nBienvenido a la lista de rafatrujillo. Gracias por querer estar cerca de esta música.\n\nSolo falta un paso: confirma tu correo para empezar:\n${confirmUrl(confirmToken)}\n\nPara que estos correos no terminen en spam, agrega hola@rafatrujillo.xyz a tus contactos.\n\nSi no fuiste tú, ignora este mensaje.`,
     tags: [{ name: 'type', value: 'confirmation' }],
   })
 }
 
-/* 2) Automatización post-confirmación: se programa en Resend para 1 minuto
-      después de confirmar. Invita a escuchar el último lanzamiento. */
-export async function sendReleaseInvite(to: string, name: string | null, unsubToken: string, delayMs = 60_000) {
+/* 2) Automatización post-confirmación: se programa en Resend para 30 segundos
+      después de confirmar. Invita a escuchar el último lanzamiento.
+      Entregabilidad: más texto que imagen, pocos enlaces, sin colores de "promo",
+      reply-to real y List-Unsubscribe one-click. */
+export async function sendReleaseInvite(to: string, name: string | null, unsubToken: string, delayMs = 30_000) {
   if (!isEmailConfigured()) return { skipped: true as const }
   const hi = name ? `${esc(name)}, ya` : 'Ya'
   const ytUrl = `https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}`
   const platform = (href: string, label: string) =>
-    `<a href="${href}" style="display:block;margin:0 0 10px;padding:13px 18px;border:1px solid #2a2a2a;background:#141414;color:#f0ece4;text-decoration:none;font-size:14px">${label} <span style="color:#c8b08a;float:right">→</span></a>`
+    `<a href="${href}" style="display:block;margin:0 0 10px;padding:12px 16px;border:1px solid #2a2a2a;color:#f0ece4;text-decoration:none;font-size:14px">${label}</a>`
 
   return client().emails.send({
     from: env.emailFrom,
@@ -75,25 +78,23 @@ export async function sendReleaseInvite(to: string, name: string | null, unsubTo
     scheduledAt: new Date(Date.now() + delayMs).toISOString(),
     headers: unsubscribeHeaders(unsubToken),
     html: layout(`${hi} eres parte de la lista. Gracias por confirmar.<br><br>
-Para empezar, te dejamos el último lanzamiento:
+Para empezar, te comparto el último lanzamiento:
 <strong style="color:#f0ece4">“${esc(LATEST_RELEASE.title)}”</strong> — ${esc(LATEST_RELEASE.credit)},
 el primer sencillo de <em>${esc(MOSQUITO_BEACH.title)}</em>, el segundo álbum de rafatrujillo.
 <br><br>
-<a href="${LATEST_RELEASE.spotifyUrl}" style="display:block;margin:0 0 22px"><img src="${env.siteUrl}${LATEST_RELEASE.cover}" alt="Portada de ${esc(LATEST_RELEASE.title)}" width="520" style="display:block;width:100%;max-width:520px;height:auto;border:0"></a>
+<img src="${env.siteUrl}${LATEST_RELEASE.cover}" alt="Portada de ${esc(LATEST_RELEASE.title)}" width="520" style="display:block;width:100%;max-width:520px;height:auto;border:0;margin:0 0 22px">
 ${platform(LATEST_RELEASE.spotifyUrl, 'Escuchar en Spotify')}
 ${platform(LATEST_RELEASE.appleMusicUrl, 'Escuchar en Apple Music')}
 ${platform(ytUrl, 'Ver el video oficial en YouTube')}
 <br>
 <span style="color:#f0ece4">Una promesa:</span> no vamos a llenar tu correo de spam.
 Solo te escribiremos cuando valga la pena.<br><br>
-Y por ser parte de la lista vas a participar en <span style="color:#c8b08a">dinámicas</span>,
-<span style="color:#c8b08a">giveaways</span> y <span style="color:#c8b08a">contenido exclusivo</span>
+Y por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo
 que no vas a encontrar en ningún otro lugar.<br><br>
+Si quieres contarme qué te pareció la canción, responde a este correo: lo leo yo.<br><br>
 Nos escuchamos pronto,<br>
-<span style="font-family:'Courier New',monospace;font-weight:bold;color:#f0ece4">rafatrujillo</span><br><br>
-<a href="${ARTIST.urls.instagram}" style="color:#c8b08a">Instagram</a> ·
-<a href="${env.siteUrl}" style="color:#c8b08a">rafatrujillo.xyz</a>`, unsubToken),
-    text: `${hi} eres parte de la lista. Gracias por confirmar.\n\nEscucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}, primer sencillo de ${MOSQUITO_BEACH.title}:\nSpotify: ${LATEST_RELEASE.spotifyUrl}\nApple Music: ${LATEST_RELEASE.appleMusicUrl}\nYouTube: ${ytUrl}\n\nUna promesa: no vamos a llenar tu correo de spam. Por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo.\n\nrafatrujillo\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
+<span style="font-family:'Courier New',monospace;font-weight:bold;color:#f0ece4">rafatrujillo</span>`, unsubToken),
+    text: `${hi} eres parte de la lista. Gracias por confirmar.\n\nEscucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}, primer sencillo de ${MOSQUITO_BEACH.title}:\nSpotify: ${LATEST_RELEASE.spotifyUrl}\nApple Music: ${LATEST_RELEASE.appleMusicUrl}\nYouTube: ${ytUrl}\n\nUna promesa: no vamos a llenar tu correo de spam. Por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo.\n\nSi quieres contarme qué te pareció, responde a este correo.\n\nrafatrujillo\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
     tags: [{ name: 'type', value: 'release_invite' }],
   })
 }

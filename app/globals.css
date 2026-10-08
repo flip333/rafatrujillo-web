@@ -724,3 +724,29 @@ html[data-cursor] textarea {
 @media (hover: none) {
   .single-cover-overlay { opacity: 1; }
 }
+
+/* ─── Preguntas frecuentes (details/summary nativo) ─── */
+.faq-list { border-top: 1px solid var(--rafa-border); }
+.faq-item { border-bottom: 1px solid var(--rafa-border); }
+.faq-item summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  cursor: pointer;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary:hover h3 { color: var(--rafa-accent) !important; }
+.faq-icon { position: relative; width: 14px; height: 14px; flex-shrink: 0; }
+.faq-icon::before, .faq-icon::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--rafa-accent);
+  transition: transform 0.35s var(--ease-out);
+}
+.faq-icon::after { transform: rotate(90deg); }
+.faq-item[open] .faq-icon::after { transform: rotate(0deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .faq-item[open] p { animation: heroFade 0.5s var(--ease-out) both; }
+}

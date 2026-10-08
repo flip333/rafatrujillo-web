@@ -107,7 +107,7 @@ const es = {
     name: 'Tu nombre (opcional)', nameLabel: 'Nombre (opcional)', emailLabel: 'Correo electrónico',
     consent: 'Acepto recibir correos de rafatrujillo y la', privacy: 'política de privacidad',
     submit: 'Suscribirme', sending: 'Enviando...', no: 'No, gracias', close: 'Cerrar',
-    checkTitle: 'Revisa tu correo.', checkText: 'Te enviamos un enlace para confirmar tu suscripción.',
+    checkTitle: 'Revisa tu correo.', checkText: 'Te enviamos un enlace para confirmar tu suscripción. Si no aparece en unos minutos, revisa spam o promociones.',
     errors: {
       invalid_email: 'Ese correo no parece válido.',
       consent_required: 'Necesitamos tu autorización para escribirte.',
@@ -227,7 +227,7 @@ const en: Dict = {
     name: 'Your name (optional)', nameLabel: 'Name (optional)', emailLabel: 'Email address',
     consent: 'I agree to receive emails from rafatrujillo and the', privacy: 'privacy policy',
     submit: 'Subscribe', sending: 'Sending...', no: 'No, thanks', close: 'Close',
-    checkTitle: 'Check your inbox.', checkText: 'We sent you a link to confirm your subscription.',
+    checkTitle: 'Check your inbox.', checkText: 'We sent you a link to confirm your subscription. If it doesn’t show up in a few minutes, check spam or promotions.',
     errors: {
       invalid_email: 'That email doesn’t look right.',
       consent_required: 'We need your consent to email you.',
