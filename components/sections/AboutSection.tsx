@@ -1,33 +1,41 @@
 import Image from 'next/image'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { GhostText }    from '@/components/shared/GhostText'
+import { Rich }         from '@/components/shared/Rich'
 import { ARTIST }       from '@/lib/artist-data'
+import { t, type Locale } from '@/lib/i18n'
 
 const LABEL: React.CSSProperties = {
-  fontSize: '0.65rem',
+  fontSize: '0.7rem',
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
   color: 'var(--rafa-muted)',
   fontFamily: 'var(--font-inter)',
 }
 
-export function AboutSection() {
+const BODY: React.CSSProperties = {
+  fontFamily: 'var(--font-inter)',
+  fontSize: '1rem',
+  lineHeight: 1.8,
+  color: 'var(--rafa-muted)',
+  maxWidth: 640,
+}
+
+export function AboutSection({ locale = 'es' }: { locale?: Locale }) {
+  const c = t(locale).about
+
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto' }} className="relative">
-      <GhostText
-        text="RAFA"
-        style={{ position: 'absolute', top: '-3rem', right: '-1rem', zIndex: 0 }}
-      />
+      <GhostText text="RAFA" style={{ position: 'absolute', top: '-3rem', right: '-1rem', zIndex: 0 }} />
 
       <div className="relative" style={{ zIndex: 1 }}>
         <ScrollReveal>
-          <p style={{ ...LABEL, marginBottom: '1rem' }}>— El artista</p>
+          <p style={{ ...LABEL, marginBottom: '1rem' }}>{c.label}</p>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-20 items-start">
-          {/* Texto */}
           <div className="lg:col-span-3 flex flex-col gap-6">
-            <ScrollReveal delay={0.06}>
+            <ScrollReveal delay={0.06} variant="words">
               <p
                 style={{
                   fontFamily: 'var(--font-playfair)',
@@ -38,81 +46,50 @@ export function AboutSection() {
                   maxWidth: 660,
                 }}
               >
-                rafatrujillo es un artista y productor de{' '}
-                <span style={{ color: 'var(--rafa-accent)' }}>Manizales, Colombia</span>.
-                Su proyecto fusiona los géneros Indie Pop-Rock con la cinematografía.
+                <Rich text={c.lead} words />
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.12}>
-              <p
-                style={{
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '1rem',
-                  lineHeight: 1.8,
-                  color: 'var(--rafa-muted)',
-                  maxWidth: 640,
-                }}
-              >
-                Siendo músico natural y compositor, con una formación en{' '}
-                <span style={{ color: 'var(--rafa-accent)' }}>cine</span>, integra
-                elementos cinematográficos y de storytelling en su proyecto musical.
-                En 2021 lanzó su primer sencillo{' '}
-                <em style={{ color: 'var(--rafa-text)' }}>"Nombre y Apellido"</em>, con
-                su antigua agrupación llamada Equo.
-              </p>
+              <div className="flex flex-col gap-5" style={BODY}>
+                {c.body.map((p, i) => <p key={i}><Rich text={p} /></p>)}
+              </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.18}>
-              <p
-                style={{
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '1rem',
-                  lineHeight: 1.8,
-                  color: 'var(--rafa-muted)',
-                  maxWidth: 640,
-                }}
-              >
-                En 2024 lanza su primer EP como solista, y ese mismo año participó como
-                artista en el{' '}
-                <span style={{ color: 'var(--rafa-accent)' }}>Megaland Music Fest</span>.
-                En 2025 lanza su primer álbum,{' '}
-                <em style={{ color: 'var(--rafa-text)' }}>
-                  "Ya no es mi canción, y otras películas"
-                </em>. Actualmente prepara su segundo LP como solista, con la
-                participación de diversos artistas colombianos.
-              </p>
+              <div className="flex flex-col gap-5" style={BODY}>
+                {c.timeline.map((p, i) => <p key={i}><Rich text={p} /></p>)}
+              </div>
             </ScrollReveal>
 
-            {/* Datos */}
             <ScrollReveal delay={0.24}>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-4">
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-4">
                 {[
-                  { label: 'Origen', value: ARTIST.city    },
-                  { label: 'Género', value: ARTIST.genre   },
-                  { label: 'País',   value: ARTIST.country },
-                  { label: 'Debut',  value: '2025'         },
+                  { label: c.facts.origin,     value: ARTIST.city    },
+                  { label: c.facts.genre,      value: ARTIST.genre   },
+                  { label: c.facts.country,    value: ARTIST.country },
+                  { label: c.facts.firstAlbum, value: '2025'         },
                 ].map(item => (
                   <div key={item.label} style={{ borderTop: '1px solid var(--rafa-border)', paddingTop: '1rem' }}>
-                    <p style={{ ...LABEL, marginBottom: '0.5rem' }}>{item.label}</p>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+                    <dt style={{ ...LABEL, marginBottom: '0.5rem' }}>{item.label}</dt>
+                    <dd style={{ fontSize: '0.9rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                       {item.value}
-                    </p>
+                    </dd>
                   </div>
                 ))}
-              </div>
+              </dl>
             </ScrollReveal>
           </div>
 
-          {/* Polaroid */}
           <div className="lg:col-span-2 flex justify-center">
-            <ScrollReveal delay={0.1} className="media-clean">
+            <ScrollReveal delay={0.1} variant="image" className="media-clean">
               <div className="polaroid" style={{ maxWidth: 310, transform: 'rotate(1.5deg)' }}>
                 <Image
                   src={ARTIST.images.portrait}
                   alt={ARTIST.fullName}
                   width={310}
                   height={310}
+                  sizes="310px"
                   className="w-full object-cover block"
                 />
               </div>

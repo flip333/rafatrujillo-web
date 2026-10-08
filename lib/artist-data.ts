@@ -1,14 +1,11 @@
 export const ARTIST = {
   name:        'rafatrujillo',
-  displayName: 'RAFATRUJILLO',
+  displayName: 'rafatrujillo',
   fullName:    'Rafa Trujillo',
   genre:       'Indie Pop-Rock',
   city:        'Manizales',
   country:     'Colombia',
-  bio: `rafatrujillo es un artista y productor de Manizales, Colombia.
-Su proyecto fusiona el Indie Pop-Rock con la cinematografía, integrando
-elementos de storytelling y cine en su música.`,
-  bioLong: `rafatrujillo es un artista y productor de Manizales, Colombia. Su proyecto fusiona los géneros Indie Pop-Rock con la cinematografía. Siendo músico natural y compositor, con una formación en cine, rafatrujillo integra elementos cinematográficos y de storytelling en su proyecto musical. En 2021 lanzó su primer sencillo "Nombre y Apellido", con su antigua agrupación llamada Equo. En 2024 lanza su primer EP como solista, y ese mismo año participó como artista en el Megaland Music Fest. En el año 2025 lanza su primer álbum, "Ya no es mi canción, y otras películas". Actualmente prepara su segundo LP como solista, con la participación de diversos artistas colombianos.`,
+  bio: `rafatrujillo es un artista, compositor, productor y multiinstrumentista colombiano que construye su música desde la canción, las guitarras, la producción independiente y una mirada profundamente narrativa.`,
   images: {
     // Hero: foto de la sesión del álbum 2025 (vertical, cinematográfica)
     hero:       '/fotos/sesion-2025-05.jpg',
@@ -20,10 +17,12 @@ elementos de storytelling y cine en su música.`,
   urls: {
     spotify:      'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
     appleMusic:   'https://music.apple.com/mx/artist/rafatrujillo/1758386046',
-    instagram:    'https://instagram.com/rafaeltrujillo_official',
-    spotifyEmbed: 'https://open.spotify.com/embed/artist/6RgSjDL2gCy477DQ9azqYi',
+    instagram:    'https://www.instagram.com/rafatrujillomusic/',
+    youtube:      'https://www.youtube.com/@rafatrujillo.oficial',
   },
   spotifyId: '6RgSjDL2gCy477DQ9azqYi',
+  // Booking, colaboraciones y servicios (música para cine, publicidad, proyectos)
+  bookingEmail: 'trujillorafa.rafa@gmail.com',
 } as const
 
 export const ALBUM_DEBUT = {
@@ -63,12 +62,27 @@ export const EQUO = {
   name:     'Equo',
   members:  ['Sergio Hoyos', 'rafatrujillo'],
   producer: 'Ragga On Fire',
-  bio: `Equo es una agrupación formada por Sergio Hoyos y rafatrujillo, con el cual inició todo su camino musical. El grupo lanzó el sencillo "Nombre y Apellido" en 2021, antes de disolverse temporalmente. En 2024 se reúnen para lanzar su segundo sencillo, "El Flamenquillo", ambos producidos por Ragga On Fire. El grupo se ha mantenido activo de manera esporádica, y actualmente se prepara para dar a conocer su nuevo sencillo "Borracho y Loco".`,
   singles: [
-    { title: 'Nombre y Apellido', year: 2021, status: 'lanzado'  },
-    { title: 'El Flamenquillo',   year: 2024, status: 'lanzado'  },
-    { title: 'Borracho y Loco',   year: null, status: 'próximo'  },
+    { title: 'Nombre y Apellido',               year: 2021 },
+    { title: 'El Flamenquillo',                 year: 2024 },
+    { title: 'Borracho y Loco',                   year: 2026 },
   ],
+} as const
+
+// ─── Último lanzamiento / nueva etapa ──────────────────────────────
+export const LATEST_RELEASE = {
+  title:       'Borracho y Loco',
+  credit:      'rafatrujillo x Equo',
+  releaseDate: '2026-09-25',
+  releaseLabel:'25 de septiembre de 2026',
+  cover:       '/fotos/portada-borracho-y-loco.jpg',
+  spotifyUrl:  'https://open.spotify.com/album/4nP7yOmEMKuxeePJHO02E2',
+  youtubeId:   'bYalxExKqP0',
+} as const
+
+export const MOSQUITO_BEACH = {
+  title: 'Mosquito Beach',
+  year:  2026,
 } as const
 
 export const SINGLES = [
@@ -86,6 +100,7 @@ export const SINGLES = [
 // Keywords de las barras animadas (SectionDivider) = nombres de las canciones.
 // Se arma desde álbum + EP + singles, quitando versiones/instrumentales y duplicados.
 const _SONG_TITLES: string[] = [
+  LATEST_RELEASE.title,
   ...ALBUM_DEBUT.tracks.map(t => t.title),
   ...EP_01.tracks.map(t => t.title),
   ...SINGLES.map(s => s.title),
@@ -98,98 +113,106 @@ export const SONG_KEYWORDS: string = Array.from(
   ).values(),
 ).join('  ·  ')
 
-// Canciones interactivas para la sección principal
-export const FEATURED_TRACKS = [
-  {
-    title:    'los lunes pienso',
-    year:     2023,
-    plays:    '14,679',
-    cover:    'https://i.scdn.co/image/ab67616d0000b273a68759222fa4fa254a41473e',
-    spotifyUrl: 'https://open.spotify.com/track/los-lunes-pienso',
-  },
-  {
-    title:    'sin tenerte a ti',
-    year:     2023,
-    plays:    '5,841',
-    cover:    'https://i.scdn.co/image/ab67616d0000b27356ca6c97c7afa70d557c0b2a',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'Suenan las alarmas',
-    year:     2025,
-    plays:    '2,508',
-    cover:    'https://i.scdn.co/image/ab67616d0000b273f5d10e141674502278734d27',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'Cuento',
-    year:     2024,
-    plays:    '2,035',
-    cover:    'https://i.scdn.co/image/ab67616d0000b273d7c53d4385242cfef00c22b3',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'Ya no es mi canción, Pt.1',
-    year:     2025,
-    plays:    null,
-    cover:    'https://i.scdn.co/image/ab67616d0000b27378e3c7b8a1669833f2af79af',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'Fallas en el corazón',
-    year:     2024,
-    plays:    null,
-    cover:    'https://i.scdn.co/image/ab67616d0000b273480647da3300fc6132acf272',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'cenizas',
-    year:     2024,
-    plays:    null,
-    cover:    'https://i.scdn.co/image/ab67616d0000b27343f0728bb77ce2bae07ffa9a',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
-  {
-    title:    'no sigue',
-    year:     2023,
-    plays:    null,
-    cover:    'https://i.scdn.co/image/ab67616d0000b273724daea1dab90bf481c1f955',
-    spotifyUrl: 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi',
-  },
+// ─── Reproductor global (Spotify iFrame API) ──────────────────────
+// URIs de Spotify. Al abrir la página se elige una canción al azar.
+export const PLAYLIST = [
+  { title: 'Borracho y Loco',            uri: 'spotify:album:4nP7yOmEMKuxeePJHO02E2' },
+  { title: 'Ya no es mi canción, Pt.1',  uri: 'spotify:album:1dACyXqypaxzlLgoUbThP8' },
+  { title: 'Suenan las alarmas',         uri: 'spotify:album:5hMTyQBO360iVUooAwwiII' },
+  { title: 'Mi canción desesperada',     uri: 'spotify:album:5xHGNyx5ET2lEfegqgx2AL' },
+  { title: 'Cuento',                     uri: 'spotify:album:2oiktsf7PRZJzRYdORNBha' },
+  { title: 'Fallas en el corazón',       uri: 'spotify:album:3HyEMCVS5I6mJK9ZtUic3A' },
+  { title: 'si te vas',                  uri: 'spotify:album:3cMNWj6JNDx2dATpFu2uVY' },
+  { title: 'sin tenerte a ti',           uri: 'spotify:album:42Fl9IcP19OeFLgFFFK8vF' },
+  { title: 'los lunes pienso',           uri: 'spotify:album:7cK0rwtbgM3MsZLdkcFhS0' },
 ] as const
 
-// Videos de YouTube
+export const SPOTIFY_URIS = {
+  latest: 'spotify:album:4nP7yOmEMKuxeePJHO02E2',
+  album:  'spotify:album:1naj0GmVEGImqQgMgoLoWE',
+  ep:     'spotify:album:78ocnQbrpoth2IDsmPnoae',
+} as const
+
+// ─── Fechas / eventos ────────────────────────────────────────────
+// La sección "Fechas" solo aparece si hay eventos futuros en esta lista.
+export type LiveEvent = {
+  date: string       // ISO, p. ej. '2026-11-20'
+  city: string
+  venue: string
+  ticketsUrl?: string
+}
+export const EVENTS: LiveEvent[] = []
+
+// ─── Prensa / EPK ────────────────────────────────────────────────
+export const PRESS = {
+  shortBio: 'rafatrujillo es un artista, compositor, productor y multiinstrumentista colombiano. Con formación en cine, construye canciones como escenas de una historia mayor. En 2025 lanzó su primer álbum, "Ya no es mi canción, y otras películas", y en 2026 inicia Mosquito Beach, su segundo álbum, con el sencillo "Borracho y Loco" junto a Equo.',
+  shortBioEn: 'rafatrujillo is a Colombian artist, songwriter, producer and multi-instrumentalist. Trained in film, he writes songs as scenes from a larger story. In 2025 he released his first album, "Ya no es mi canción, y otras películas", and in 2026 he begins Mosquito Beach, his second album, with the single "Borracho y Loco" featuring Equo.',
+} as const
+
+// Videos oficiales del canal de YouTube (@rafatrujillo.oficial), del más reciente al más antiguo.
+// No incluye Shorts.
 export const YOUTUBE_VIDEOS = [
-  {
-    id:    'AIlwZJciG1o',
-    title: 'ya no es mi canción pt I + pt II',
-    type:  'official' as const,
-    year:  2025,
-  },
-  {
-    id:    '-UxhIUjIHNg',
-    title: 'Suenan las alarmas',
-    type:  'official' as const,
-    year:  2025,
-  },
-  {
-    id:    'XSiahemUDJs',
-    title: 'Mi canción desesperada (Acústica)',
-    type:  'official' as const,
-    year:  2025,
-  },
-] as const
-
-export const RELATED_ARTISTS = [
-  'Samuel Ortiz',
-  'Sónet',
-  'Giorgio Rome',
-  'Noche en Praga',
+  { id: 'bYalxExKqP0', title: 'Borracho y Loco — rafatrujillo x Equo',  type: 'official', year: 2026 },
+  { id: 'AIlwZJciG1o', title: 'ya no es mi canción pt I + pt II',          type: 'official', year: 2025 },
+  { id: '-UxhIUjIHNg', title: 'Suenan las alarmas',                        type: 'official', year: 2025 },
+  { id: 'FrzctFi_tp4', title: 'Mi canción desesperada',                    type: 'official', year: 2025 },
+  { id: 'XSiahemUDJs', title: 'Mi canción desesperada (Acústica)',         type: 'live',     year: 2025 },
+  { id: 'TTdUmHufO64', title: 'Cuento',                                    type: 'official', year: 2024 },
+  { id: 'pIb499yEVS0', title: 'Fallas en el corazón',                      type: 'official', year: 2024 },
+  { id: 'MgBHEZn6oDI', title: 'si te vas',                                 type: 'official', year: 2024 },
+  { id: 'FYUXWpylWqI', title: 'no sigue',                                  type: 'official', year: 2023 },
+  { id: '8DOjQvELPY4', title: 'cenizas',                                   type: 'official', year: 2023 },
+  { id: 'Fh3yTUK3l-E', title: 'los lunes pienso',                          type: 'official', year: 2023 },
+  { id: 'XtXiwRDGVP4', title: 'sin tenerte a ti',                          type: 'official', year: 2023 },
 ] as const
 
 // ─── Letras de las canciones ───────────────────────────────────────
 // Clave = título normalizado (minúsculas, sin sufijos de versión).
 export const LYRICS: Record<string, string> = {
+  'borracho y loco': `Aunque digan que soy un borracho
+No soy así,
+Fue dos fiestas después
+Y yo no te reconocí.
+Ahora háblame de tu vida,
+No quiero poner en tema la mía,
+Tal vez porque te irías,
+Porque te irías.
+
+Borracho y loco,
+Yo te digo poco a poco, verás,
+Borracho y loco,
+Pierdo el freno y no me choco,
+Pienso en tu amor,
+Y yo me pongo sentimental, wo'
+Y ahí sí cada vez más
+Borracho y loco,
+Y loco.
+
+A las doce yo no aparecía,
+Yo me perdí,
+No podría explicarles
+En qué hueco me metí,
+Y yo nada que aparecía,
+Y tú llame y llame a la policía
+Mientras yo me escondía,
+Yo me escondía.
+
+Borracho y loco,
+Yo te digo poco a poco, verás,
+Borracho y loco,
+Pierdo el freno y no me choco,
+Pienso en tu amor,
+Y yo me pongo sentimental, wo'
+Y ahí sí cada vez más
+Borracho y loco,
+Y loco.
+
+Pienso en tu amor,
+Y me pongo sentimental, wo'
+Y ahí sí cada vez más
+Borracho y loco,
+Y loco.`,
+
   'cuento': `Ahora que
 viniste a mi casa y no te vi,
 y no te vi, y no te vi.

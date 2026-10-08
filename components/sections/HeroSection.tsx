@@ -1,54 +1,54 @@
-'use client'
 import Image from 'next/image'
-import { motion } from 'motion/react'
-import { ARTIST, ALBUM_DEBUT } from '@/lib/artist-data'
+import { ARTIST, LATEST_RELEASE, MOSQUITO_BEACH } from '@/lib/artist-data'
+import { t, type Locale } from '@/lib/i18n'
 
-export function HeroSection() {
+/* Hero 100% servidor + animaciones CSS (ver .hero-* en globals.css):
+   el nombre y la foto aparecen sin esperar a que cargue el JavaScript. */
+export function HeroSection({ locale = 'es' }: { locale?: Locale }) {
+  const c = t(locale).hero
+  const letters = [...ARTIST.displayName]
+
   return (
     <section
       className="relative w-full overflow-hidden"
-      style={{ height: '100svh', minHeight: 620, zIndex: 10000 }}
+      style={{ height: '100svh', minHeight: 560, zIndex: 10000 }}
     >
-      {/* Foto — zoom-out al cargar */}
-      <motion.div
-        className="absolute inset-0"
-        initial={{ scale: 1.07 }}
-        animate={{ scale: 1.0 }}
-        transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
-      >
+      {/* Foto a pantalla completa — zoom-out suave al cargar */}
+      <div className="absolute inset-0 hero-parallax">
+      <div className="absolute inset-0 hero-zoom">
         <Image
           src={ARTIST.images.hero}
           alt={ARTIST.fullName}
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover hero-photo"
         />
-      </motion.div>
+      </div>
+      </div>
 
-      {/* Gradient hacia abajo */}
+      {/* Degradado hacia abajo para legibilidad del texto */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(to bottom, rgba(10,10,10,0.1) 0%, rgba(10,10,10,0.15) 45%, rgba(10,10,10,0.88) 78%, #0a0a0a 100%)',
+            'linear-gradient(to bottom, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.05) 18%, rgba(10,10,10,0.12) 45%, rgba(10,10,10,0.88) 78%, #0a0a0a 100%)',
         }}
       />
 
-      {/* Meta top-right — Manizales · Colombia · Indie Pop-Rock */}
-      <motion.div
-        className="absolute top-20 right-6 text-right hidden sm:block"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1.1 }}
+      {/* Meta arriba a la derecha */}
+      <div
+        className="absolute top-20 right-6 text-right hidden sm:block hero-fade"
+        style={{ '--d': '1.1s' } as React.CSSProperties}
       >
         <p
           style={{
-            fontSize: '0.62rem',
+            fontSize: '0.7rem',
             letterSpacing: '0.26em',
             lineHeight: 2.1,
             textTransform: 'uppercase',
-            color: 'rgba(240,236,228,0.45)',
+            color: 'rgba(240,236,228,0.6)',
             fontFamily: 'var(--font-inter)',
           }}
         >
@@ -56,61 +56,88 @@ export function HeroSection() {
           {ARTIST.country}<br />
           {ARTIST.genre}
         </p>
-      </motion.div>
+      </div>
 
-      {/* Contenido — bottom left */}
-      <div
-        className="absolute bottom-0 left-0 right-0 px-6 pb-12 sm:pb-16"
-        style={{ maxWidth: 1200, margin: '0 auto', right: 'auto', width: '100%' }}
-      >
-        {/* Nombre del artista — tipografía brutalista */}
-        <div className="overflow-hidden">
-          <motion.h1
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-            style={{
-              fontFamily: 'var(--font-bebas)',
-              fontSize: 'clamp(5rem, 19vw, 14rem)',
-              lineHeight: 0.9,
-              letterSpacing: '-0.01em',
-              color: 'var(--rafa-text)',
-              textTransform: 'uppercase',
-            }}
+      {/* Contenido — abajo, alineado con el contenedor de 1200px */}
+      <div className="absolute inset-x-0 bottom-0 hero-exit">
+        <div className="px-6 pb-24 sm:pb-24 flex items-end justify-between gap-6" style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="min-w-0">
+            <h1
+              aria-label={ARTIST.displayName}
+              className="overflow-hidden"
+              style={{
+                whiteSpace: 'nowrap',
+                fontFamily: 'var(--font-type)',
+                fontWeight: 700,
+                // Monoespaciada: 12 caracteres ≈ 7em → máx ~12.5vw para no desbordar
+                fontSize: 'clamp(2.6rem, 12.5vw, 9.5rem)',
+                lineHeight: 1.05,
+                letterSpacing: '-0.04em',
+                color: 'var(--rafa-text)',
+                paddingBottom: '0.05em',
+              }}
+            >
+              {letters.map((ch, i) => (
+                <span key={i} aria-hidden="true" className="hero-letter" style={{ '--i': i } as React.CSSProperties}>
+                  {ch}
+                </span>
+              ))}
+            </h1>
+
+            <div
+              className="mt-4 flex items-center gap-x-4 gap-y-2 flex-wrap hero-fade"
+              style={{ '--d': '0.75s' } as React.CSSProperties}
+            >
+              <a
+                href="#lanzamiento"
+                className="link-draw"
+                style={{
+                  fontFamily: 'var(--font-playfair)',
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(1rem, 2.2vw, 1.3rem)',
+                  color: 'var(--rafa-accent)',
+                  paddingBlock: '0.4rem',
+                }}
+              >
+                “{LATEST_RELEASE.title}” — {LATEST_RELEASE.credit}
+              </a>
+              <span
+                style={{
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(240,236,228,0.7)',
+                  fontFamily: 'var(--font-inter)',
+                }}
+              >
+                {c.available}{' '}
+                <em style={{ textTransform: 'none', letterSpacing: '0.05em' }}>{MOSQUITO_BEACH.title}</em>
+              </span>
+            </div>
+          </div>
+
+          {/* Indicador de scroll (decorativo) */}
+          <a
+            href="#lanzamiento"
+            aria-label={c.scrollLabel}
+            className="hidden sm:flex flex-col items-center gap-3 shrink-0 hero-fade min-w-11 py-2"
+            style={{ '--d': '1.4s' } as React.CSSProperties}
           >
-            {ARTIST.displayName}
-          </motion.h1>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: 'rgba(240,236,228,0.55)',
+                fontFamily: 'var(--font-inter)',
+                writingMode: 'vertical-rl',
+              }}
+            >
+              {c.scroll}
+            </span>
+            <span className="scroll-cue" aria-hidden="true" />
+          </a>
         </div>
-
-        {/* Subtítulo — álbum en Playfair italic */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-          className="mt-3 flex items-center gap-4 flex-wrap"
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-playfair)',
-              fontStyle: 'italic',
-              fontSize: 'clamp(0.9rem, 2.2vw, 1.3rem)',
-              color: 'var(--rafa-accent)',
-            }}
-          >
-            {ALBUM_DEBUT.title}
-          </p>
-          <span
-            style={{
-              fontSize: '0.65rem',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--rafa-muted)',
-              fontFamily: 'var(--font-inter)',
-            }}
-          >
-            — {ALBUM_DEBUT.year}
-          </span>
-        </motion.div>
       </div>
     </section>
   )

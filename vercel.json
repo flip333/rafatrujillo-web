@@ -2,5 +2,9 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "crons": [
+    { "path": "/api/cron/maintenance", "schedule": "0 8 * * *" }
+  ]
 }

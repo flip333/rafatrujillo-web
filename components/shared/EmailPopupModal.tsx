@@ -1,56 +1,102 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { SubscribeForm, SUBSCRIBED_KEY } from './SubscribeForm'
+import { usePathname } from 'next/navigation'
+import { track } from '@/lib/analytics'
+import { t, localeFromPath } from '@/lib/i18n'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
-const STORAGE_KEY = 'rafa-popup-v1'
+const DISMISSED_KEY   = 'rafa-popup-dismissed'
+const DISMISS_DAYS    = 30
+const SCROLL_TRIGGER  = 0.45   // fracción de la página recorrida
+const TRIGGER_SECTION = 'discografia'
 
+function shouldShow(): boolean {
+  try {
+    if (localStorage.getItem(SUBSCRIBED_KEY)) return false
+    const dismissed = Number(localStorage.getItem(DISMISSED_KEY) || 0)
+    return Date.now() - dismissed > DISMISS_DAYS * 24 * 60 * 60 * 1000
+  } catch {
+    return true
+  }
+}
+
+/* Pop-up de suscripción: aparece después de que la persona hace scroll
+   (no al cargar), una sola vez; si lo cierra no vuelve en 30 días. */
 export function EmailPopupModal() {
-  const [visible, setVisible]   = useState(false)
-  const [name, setName]         = useState('')
-  const [email, setEmail]       = useState('')
-  const [status, setStatus]     = useState<'idle' | 'loading' | 'success'>('idle')
+  const pathname = usePathname()
+  const locale = localeFromPath(pathname)
+  const c = t(locale).signup
+  const [visible, setVisible] = useState(false)
+  const lastFocus = useRef<HTMLElement | null>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  useFocusTrap(panel, visible)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (localStorage.getItem(STORAGE_KEY)) return
-    const timer = setTimeout(() => setVisible(true), 2200)
-    return () => clearTimeout(timer)
+    if (!shouldShow() || !document.getElementById(TRIGGER_SECTION)) return
+    let done = false
+    const section = document.getElementById(TRIGGER_SECTION)
+
+    const open = () => {
+      if (done) return
+      done = true
+      cleanup()
+      // No interrumpir si hay otro diálogo abierto (p. ej. letras)
+      if (document.querySelector('[role="dialog"]:not([aria-hidden="true"])')) return
+      lastFocus.current = document.activeElement as HTMLElement
+      setVisible(true)
+      track('subscribe_view', { source: 'popup' })
+    }
+
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      if (max > 0 && window.scrollY / max >= SCROLL_TRIGGER) open()
+    }
+
+    const io = section
+      ? new IntersectionObserver(([e]) => e.isIntersecting && open(), { threshold: 0.15 })
+      : null
+    if (section && io) io.observe(section)
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    function cleanup() {
+      window.removeEventListener('scroll', onScroll)
+      io?.disconnect()
+    }
+    return cleanup
   }, [])
 
-  const close = () => {
+  const close = useCallback((reason: 'dismiss' | 'success' = 'dismiss') => {
     setVisible(false)
-    localStorage.setItem(STORAGE_KEY, '1')
-  }
+    if (reason === 'dismiss') {
+      try { localStorage.setItem(DISMISSED_KEY, String(Date.now())) } catch {}
+      track('popup_dismiss')
+    }
+    lastFocus.current?.focus?.()
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email.trim()) return
-    setStatus('loading')
-
-    // TODO: vincular a Supabase
-    // const { error } = await supabase
-    //   .from('subscribers')
-    //   .insert({ name: name.trim(), email: email.trim().toLowerCase() })
-    // if (error) { setStatus('idle'); return }
-
-    await new Promise(r => setTimeout(r, 900))
-    setStatus('success')
-    setTimeout(close, 2200)
-  }
+  // Escape para cerrar + bloquear scroll del fondo
+  useEffect(() => {
+    if (!visible) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
+    window.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [visible, close])
 
   return (
-    <AnimatePresence>
+    <>
       {visible && (
         <>
-          {/* Backdrop */}
-          <motion.div
+          <div
             key="backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={close}
+            className="modal-backdrop"
+            onClick={() => close()}
             style={{
               position: 'fixed',
               inset: 0,
@@ -62,7 +108,6 @@ export function EmailPopupModal() {
             aria-hidden="true"
           />
 
-          {/* Centering wrapper — flex centrado, sin transform */}
           <div
             key="modal-wrapper"
             style={{
@@ -76,205 +121,113 @@ export function EmailPopupModal() {
               pointerEvents: 'none',
             }}
           >
-          {/* Modal */}
-          <motion.div
-            key="modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Suscribirse a la lista de correo"
-            initial={{ opacity: 0, y: 36, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.97 }}
-            transition={{ duration: 0.38, ease: 'easeOut' }}
-            style={{
-              pointerEvents: 'all',
-              width: '100%',
-              maxWidth: 500,
-              maxHeight: '90dvh',
-              overflowY: 'auto',
-              backgroundColor: 'var(--rafa-surface)',
-              border: '1px solid var(--rafa-border)',
-              padding: 'clamp(1.5rem, 5vw, 2.75rem)',
-              position: 'relative',
-            }}
-          >
-            {/* Cerrar */}
-            <button
-              onClick={close}
-              aria-label="Cerrar"
+            <div
+              key="modal"
+              ref={panel}
+              className="modal-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="popup-title"
               style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: 'none',
-                border: 'none',
-                color: 'var(--rafa-muted)',
-                fontFamily: 'var(--font-inter)',
-                fontSize: '1rem',
-                lineHeight: 1,
-                cursor: 'pointer',
-                padding: '0.25rem 0.5rem',
-                transition: 'color 150ms ease',
+                pointerEvents: 'all',
+                width: '100%',
+                maxWidth: 500,
+                maxHeight: '90dvh',
+                overflowY: 'auto',
+                backgroundColor: 'var(--rafa-surface)',
+                border: '1px solid var(--rafa-border)',
+                padding: 'clamp(1.5rem, 5vw, 2.75rem)',
+                position: 'relative',
               }}
-              className="popup-close"
             >
-              ✕
-            </button>
+              <button
+                onClick={() => close()}
+                aria-label={c.close}
+                className="popup-close"
+                style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--rafa-muted)',
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: '1rem',
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                  padding: '0.25rem 0.5rem',
+                  transition: 'color 150ms ease',
+                }}
+              >
+                ✕
+              </button>
 
-            <AnimatePresence mode="wait">
-              {status === 'success' ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  style={{ textAlign: 'center', padding: '1rem 0' }}
-                >
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-bebas)',
-                      fontSize: 'clamp(2rem, 6vw, 3rem)',
-                      color: 'var(--rafa-accent)',
-                      lineHeight: 1.1,
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    Ya estás en la lista
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-inter)',
-                      fontSize: '0.88rem',
-                      color: 'var(--rafa-muted)',
-                      marginTop: '0.6rem',
-                    }}
-                  >
-                    Pronto recibirás noticias de Rafa.
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.div key="form">
-                  {/* Encabezado */}
-                  <p
-                    style={{
-                      fontSize: '0.62rem',
-                      letterSpacing: '0.24em',
-                      textTransform: 'uppercase',
-                      color: 'var(--rafa-muted)',
-                      fontFamily: 'var(--font-inter)',
-                      marginBottom: '0.85rem',
-                    }}
-                  >
-                    — Lista de correo
-                  </p>
-                  <h2
-                    className="uppercase leading-none"
-                    style={{
-                      fontFamily: 'var(--font-bebas)',
-                      fontSize: 'clamp(2rem, 7vw, 3.2rem)',
-                      color: 'var(--rafa-text)',
-                      marginBottom: '0.65rem',
-                      letterSpacing: '0.02em',
-                    }}
-                  >
-                    Sé el primero
-                  </h2>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-playfair)',
-                      fontStyle: 'italic',
-                      fontSize: '0.92rem',
-                      color: 'var(--rafa-muted)',
-                      lineHeight: 1.6,
-                      marginBottom: '1.75rem',
-                    }}
-                  >
-                    Nuevas canciones, fechas y detrás de cámaras — directo a tu correo.
-                  </p>
+              <p
+                style={{
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.24em',
+                  textTransform: 'uppercase',
+                  color: 'var(--rafa-muted)',
+                  fontFamily: 'var(--font-inter)',
+                  marginBottom: '0.85rem',
+                }}
+              >
+                {c.label}
+              </p>
+              <h2
+                id="popup-title"
+                className="uppercase leading-none"
+                style={{
+                  fontFamily: 'var(--font-bebas)',
+                  fontSize: 'clamp(2rem, 7vw, 3.2rem)',
+                  color: 'var(--rafa-text)',
+                  marginBottom: '0.65rem',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {c.title}
+              </h2>
+              <p
+                style={{
+                  fontFamily: 'var(--font-playfair)',
+                  fontStyle: 'italic',
+                  fontSize: '0.92rem',
+                  color: 'var(--rafa-muted)',
+                  lineHeight: 1.6,
+                  marginBottom: '1.75rem',
+                }}
+              >
+                {c.popupText}
+              </p>
 
-                  <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                    <input
-                      type="text"
-                      placeholder="Tu nombre (opcional)"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      disabled={status === 'loading'}
-                      className="email-input"
-                      style={{
-                        width: '100%',
-                        padding: '0.82rem 1rem',
-                        backgroundColor: 'var(--rafa-surface-2)',
-                        border: '1px solid var(--rafa-border)',
-                        color: 'var(--rafa-text)',
-                        fontFamily: 'var(--font-inter)',
-                        fontSize: '0.88rem',
-                        outline: 'none',
-                      }}
-                    />
-                    <input
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      required
-                      disabled={status === 'loading'}
-                      className="email-input"
-                      style={{
-                        width: '100%',
-                        padding: '0.82rem 1rem',
-                        backgroundColor: 'var(--rafa-surface-2)',
-                        border: '1px solid var(--rafa-border)',
-                        color: 'var(--rafa-text)',
-                        fontFamily: 'var(--font-inter)',
-                        fontSize: '0.88rem',
-                        outline: 'none',
-                      }}
-                    />
-                    <div className="flex items-center gap-3 mt-1" style={{ flexWrap: 'wrap' }}>
-                      <button
-                        type="submit"
-                        disabled={status === 'loading'}
-                        className="btn-subscribe"
-                        style={{
-                          padding: '0.82rem 2rem',
-                          border: '1px solid var(--rafa-accent)',
-                          color: status === 'loading' ? 'var(--rafa-muted)' : 'var(--rafa-accent)',
-                          backgroundColor: 'transparent',
-                          fontFamily: 'var(--font-inter)',
-                          fontSize: '0.68rem',
-                          letterSpacing: '0.2em',
-                          textTransform: 'uppercase',
-                          fontWeight: 500,
-                          cursor: status === 'loading' ? 'default' : 'pointer',
-                          transition: 'background-color 180ms ease, color 180ms ease',
-                        }}
-                      >
-                        {status === 'loading' ? 'Enviando...' : 'Suscribirme'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={close}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--rafa-muted)',
-                          fontFamily: 'var(--font-inter)',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          padding: 0,
-                        }}
-                      >
-                        No, gracias
-                      </button>
-                    </div>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+              <SubscribeForm
+                source="popup"
+                locale={locale}
+                autoFocus
+                onSuccess={() => setTimeout(() => close('success'), 3500)}
+                secondary={
+                  <button
+                    type="button"
+                    onClick={() => close()}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--rafa-muted)',
+                      fontFamily: 'var(--font-inter)',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      padding: 0,
+                    }}
+                  >
+                    {c.no}
+                  </button>
+                }
+              />
+            </div>
           </div>
         </>
       )}
-    </AnimatePresence>
+    </>
   )
 }

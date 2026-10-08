@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
+import { t, type Locale } from '@/lib/i18n'
+import { track } from '@/lib/analytics'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 export interface LyricsModalData {
   title:     string
@@ -9,15 +11,32 @@ export interface LyricsModalData {
   body:      string | null   // letra o créditos
   variant?:  'lyrics' | 'credits'
   instrumental?: boolean
+  shareUrl?: string        // enlace directo a la letra
 }
 
 interface Props {
   data: LyricsModalData | null
   onClose: () => void
+  locale?: Locale
 }
 
-export function LyricsModal({ data, onClose }: Props) {
+export function LyricsModal({ data, onClose, locale = 'es' }: Props) {
   const open = data !== null
+  const c = t(locale).lyrics
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  useFocusTrap(panel, open)
+  const [copied, setCopied] = useState(false)
+
+  const copyLink = async () => {
+    if (!data?.shareUrl) return
+    try {
+      await navigator.clipboard.writeText(data.shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+      track('lyrics_share', { song: data.title })
+    } catch {}
+  }
 
   // Cerrar con Escape + bloquear scroll del fondo
   useEffect(() => {
@@ -25,23 +44,23 @@ export function LyricsModal({ data, onClose }: Props) {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+    const prevFocus = document.activeElement as HTMLElement | null
+    closeRef.current?.focus()
     return () => {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
+      prevFocus?.focus?.()
     }
   }, [open, onClose])
 
   return (
-    <AnimatePresence>
+    <>
       {open && data && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <div
             key="lyrics-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.28 }}
+            className="modal-backdrop"
             onClick={onClose}
             style={{
               position: 'fixed',
@@ -68,15 +87,13 @@ export function LyricsModal({ data, onClose }: Props) {
               pointerEvents: 'none',
             }}
           >
-            <motion.div
+            <div
               key="lyrics-modal"
+              ref={panel}
+              className="modal-panel"
               role="dialog"
               aria-modal="true"
-              aria-label={`Letra de ${data.title}`}
-              initial={{ opacity: 0, y: 36, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.97 }}
-              transition={{ duration: 0.36, ease: 'easeOut' }}
+              aria-label={data.variant === 'credits' ? data.title : `${c.lyricsOf} ${data.title}`}
               style={{
                 pointerEvents: 'all',
                 width: '100%',
@@ -98,8 +115,9 @@ export function LyricsModal({ data, onClose }: Props) {
                 }}
               >
                 <button
+                  ref={closeRef}
                   onClick={onClose}
-                  aria-label="Cerrar"
+                  aria-label={c.close}
                   className="popup-close"
                   style={{
                     position: 'absolute',
@@ -111,7 +129,7 @@ export function LyricsModal({ data, onClose }: Props) {
                     fontSize: '1rem',
                     lineHeight: 1,
                     cursor: 'pointer',
-                    padding: '0.25rem 0.5rem',
+                    padding: '0.6rem 0.8rem',
                     transition: 'color 150ms ease',
                   }}
                 >
@@ -121,7 +139,7 @@ export function LyricsModal({ data, onClose }: Props) {
                 {data.meta && (
                   <p
                     style={{
-                      fontSize: '0.6rem',
+                      fontSize: '0.66rem',
                       letterSpacing: '0.24em',
                       textTransform: 'uppercase',
                       color: 'var(--rafa-accent)',
@@ -145,6 +163,26 @@ export function LyricsModal({ data, onClose }: Props) {
                 >
                   {data.title}
                 </h2>
+                {data.shareUrl && (
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    className="lyrics-link mt-3"
+                    style={{
+                      fontFamily: 'var(--font-inter)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: copied ? 'var(--rafa-accent)' : 'var(--rafa-muted)',
+                      background: 'none',
+                      border: 'none',
+                      padding: '0.4rem 0',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {copied ? `✓ ${c.copied}` : `↗ ${c.copy}`}
+                  </button>
+                )}
               </div>
 
               {/* Cuerpo con scroll */}
@@ -165,8 +203,8 @@ export function LyricsModal({ data, onClose }: Props) {
                     }}
                   >
                     {data.instrumental
-                      ? 'Pista instrumental — sin letra.'
-                      : 'Letra no disponible por ahora.'}
+                      ? c.instrumental
+                      : c.unavailable}
                   </p>
                 ) : (
                   <p
@@ -185,10 +223,10 @@ export function LyricsModal({ data, onClose }: Props) {
                   </p>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
         </>
       )}
-    </AnimatePresence>
+    </>
   )
 }

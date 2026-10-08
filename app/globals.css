@@ -222,6 +222,11 @@ html[data-cursor] button,
 html[data-cursor] [role="button"] {
   cursor: none !important;
 }
+/* Campos de texto conservan el cursor de escritura */
+html[data-cursor] input,
+html[data-cursor] textarea {
+  cursor: text !important;
+}
 
 /* ─── Email signup inputs ────────────────────────────────────── */
 .email-input::placeholder { color: var(--rafa-muted); }
@@ -279,4 +284,443 @@ html[data-cursor] [role="button"] {
 }
 .single-card-img:hover .single-cover-overlay {
   opacity: 0.85;
+}
+
+/* ─── Cinta animada (SectionDivider) ─────────────────────────── */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rafa-muted);
+  font-family: var(--font-inter, system-ui);
+  animation: marquee 35s linear infinite;
+  will-change: transform;
+}
+.marquee-track > span { white-space: pre; }
+.marquee-reverse { animation-direction: reverse; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CAPA DE ANIMACIONES
+   - Solo transform / opacity / clip-path (compositor de GPU, sin layout).
+   - Sin JavaScript de animación: CSS + un IntersectionObserver compartido.
+   - Si el JS no carga (scripting: none) o la persona pide menos movimiento,
+     todo se muestra estático y completo.
+   ════════════════════════════════════════════════════════════════ */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  /* El contenedor .reveal NUNCA se recorta (si se recorta al 100 %, el
+     IntersectionObserver lo considera invisible y no se activa): los efectos
+     de máscara/cortina se aplican a su hijo directo. */
+  .reveal {
+    transition:
+      opacity 0.9s var(--ease-out) var(--rd, 0s),
+      transform 1s var(--ease-out) var(--rd, 0s);
+  }
+  .reveal-up    { opacity: 0; transform: translate3d(0, var(--ry, 28px), 0); }
+  .reveal-fade  { opacity: 0; }
+
+  /* Imágenes: cortina que se abre de centro hacia fuera + zoom 1.12 → 1 */
+  .reveal-image > * {
+    clip-path: inset(14% 6% 14% 6%);
+    transition: clip-path 1.3s var(--ease-out) var(--rd, 0s);
+  }
+  .reveal-image img {
+    transform: scale(1.12);
+    filter: brightness(0.7);
+    transition: transform 1.8s var(--ease-out) var(--rd, 0s), filter 1.4s ease var(--rd, 0s);
+  }
+  .reveal-image.is-in > * { clip-path: inset(0 0 0 0); }
+  .reveal-image.is-in img { transform: none; filter: none; }
+
+  /* Títulos destacados: emergen desde una máscara */
+  .reveal-mask > * {
+    clip-path: inset(0 0 100% 0);
+    transform: translate3d(0, 55%, 0);
+    transition: clip-path 1s var(--ease-out) var(--rd, 0s), transform 1s var(--ease-out) var(--rd, 0s);
+  }
+  .reveal-mask.is-in > * { clip-path: inset(-10% -5% -10% -5%); transform: none; }
+
+  /* Listas: cada elemento entra en cascada */
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translate3d(-14px, 0, 0);
+    transition: opacity 0.6s ease, transform 0.7s var(--ease-out);
+  }
+  .reveal-stagger.is-in > * { opacity: 1; transform: none; }
+  .reveal-stagger.is-in > :nth-child(1)  { transition-delay: calc(var(--rd, 0s) + 0.00s); }
+  .reveal-stagger.is-in > :nth-child(2)  { transition-delay: calc(var(--rd, 0s) + 0.05s); }
+  .reveal-stagger.is-in > :nth-child(3)  { transition-delay: calc(var(--rd, 0s) + 0.10s); }
+  .reveal-stagger.is-in > :nth-child(4)  { transition-delay: calc(var(--rd, 0s) + 0.15s); }
+  .reveal-stagger.is-in > :nth-child(5)  { transition-delay: calc(var(--rd, 0s) + 0.20s); }
+  .reveal-stagger.is-in > :nth-child(6)  { transition-delay: calc(var(--rd, 0s) + 0.25s); }
+  .reveal-stagger.is-in > :nth-child(7)  { transition-delay: calc(var(--rd, 0s) + 0.30s); }
+  .reveal-stagger.is-in > :nth-child(8)  { transition-delay: calc(var(--rd, 0s) + 0.35s); }
+  .reveal-stagger.is-in > :nth-child(n+9) { transition-delay: calc(var(--rd, 0s) + 0.40s); }
+
+  .reveal.is-in { opacity: 1; transform: none; }
+
+  /* ── Hero (CSS puro: no espera a que cargue el JS) ── */
+  .hero-zoom   { animation: heroZoom 2.4s var(--ease-out) both; }
+  .hero-letter { display: inline-block; animation: heroLetter 0.9s var(--ease-out) both;
+                 animation-delay: calc(0.15s + var(--i) * 0.035s); }
+  .hero-fade   { animation: heroFade 0.9s var(--ease-out) both; animation-delay: var(--d, 0.6s); }
+  .scroll-cue::after { animation: scrollCue 2.2s ease-in-out 1.6s infinite; }
+}
+
+@keyframes heroZoom   { from { transform: scale(1.07); } to { transform: none; } }
+@keyframes heroLetter { from { transform: translate3d(0, 105%, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes heroFade   { from { transform: translate3d(0, 14px, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes scrollCue  {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  45%  { transform: scaleY(1); transform-origin: top; }
+  55%  { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* Indicador de scroll del hero */
+.scroll-cue {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 56px;
+  background: rgba(240, 236, 228, 0.15);
+  overflow: hidden;
+}
+.scroll-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--rafa-accent);
+  transform: scaleY(0);
+}
+
+/* Portadas y fotos destacadas: zoom suave al pasar el mouse (solo con puntero fino) */
+@media (hover: hover) and (pointer: fine) {
+  .img-hover img { transition: transform 0.9s var(--ease-out); }
+  .img-hover:hover img { transform: scale(1.035); }
+}
+
+/* Subrayado que se dibuja en enlaces de texto destacados */
+.link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-out);
+}
+.link-draw:hover, .link-draw:focus-visible { background-size: 100% 1px; }
+
+/* ─── Pistas de letra visibles en táctiles (no hay hover) ─── */
+@media (hover: none) {
+  .lyrics-row .lyrics-hint { opacity: 0.75; }
+}
+
+/* ─── Áreas táctiles mínimas (44px) ─── */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Menú fullscreen (sin JS de animación) ─── */
+.nav-overlay {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+.nav-overlay.is-open {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.nav-overlay .nav-item {
+  opacity: 0;
+  transform: translate3d(-28px, 0, 0);
+  transition: opacity 0.35s ease, transform 0.45s var(--ease-out);
+}
+.nav-overlay.is-open .nav-item {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.06s + var(--i, 0) * 0.06s);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-overlay, .nav-overlay .nav-item { transition: none; transform: none; }
+}
+
+/* ─── Modales y formularios (entrada CSS, sin librería) ─── */
+@media (prefers-reduced-motion: no-preference) {
+  .modal-backdrop { animation: modalFade 0.3s ease both; }
+  .modal-panel    { animation: modalIn 0.38s var(--ease-out) both; }
+  .fade-in        { animation: heroFade 0.5s var(--ease-out) both; }
+}
+@keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn   { from { opacity: 0; transform: translate3d(0, 36px, 0) scale(0.97); } to { opacity: 1; transform: none; } }
+
+/* ─── Reproductor flotante ─── */
+.music-player {
+  position: fixed;
+  left: 12px;
+  right: 72px;              /* deja espacio al botón "volver arriba" en móvil */
+  bottom: 12px;
+  z-index: 10005;
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--rafa-border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  transform: translate3d(0, 130%, 0);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.5s var(--ease-out), opacity 0.3s ease, visibility 0s linear 0.5s;
+}
+.music-player.is-open {
+  transform: none;
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.6s var(--ease-out) 0.2s, opacity 0.4s ease 0.2s;
+}
+@media (min-width: 640px) {
+  .music-player { right: auto; left: 20px; bottom: 20px; width: 340px; }
+}
+.player-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--rafa-muted);
+  border-radius: 999px;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+.player-btn:hover { color: var(--rafa-text); background: var(--rafa-surface-2); }
+.player-fab, .to-top {
+  position: fixed;
+  bottom: 14px;
+  z-index: 10005;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--rafa-border);
+  background: rgba(17, 17, 17, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--rafa-accent);
+  transition: transform 0.3s var(--ease-out), opacity 0.3s ease, color 150ms ease;
+}
+.player-fab { left: 14px; }
+.to-top { right: 14px; color: var(--rafa-text); }
+.to-top:not(.is-visible) { opacity: 0; transform: translate3d(0, 12px, 0); pointer-events: none; }
+.player-fab:hover, .to-top:hover { color: var(--rafa-accent); }
+@media (min-width: 640px) {
+  .player-fab { left: 20px; bottom: 20px; }
+  .to-top { right: 20px; bottom: 20px; }
+}
+
+/* Ecualizador animado (solo mientras suena) */
+.eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; margin-right: 8px; vertical-align: -1px; }
+.eq i { width: 2px; height: 3px; background: var(--rafa-accent); display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .eq.is-playing i { animation: eq 0.9s ease-in-out infinite; transform-origin: bottom; }
+  .eq.is-playing i:nth-child(2) { animation-delay: -0.3s; }
+  .eq.is-playing i:nth-child(3) { animation-delay: -0.6s; }
+}
+.eq.is-playing i { height: 10px; }
+@keyframes eq { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+
+/* Menú: sección activa (scrollspy) */
+.nav-item[aria-current='true'] { color: var(--rafa-accent) !important; }
+
+/* Botones "Reproducir" de la discografía */
+.btn-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.4rem;
+  border: 1px solid var(--rafa-accent);
+  color: var(--rafa-accent);
+  font-family: var(--font-inter, system-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.btn-play:hover { background: var(--rafa-accent); color: #000; }
+
+/* Reproductor compacto mientras se ve el hero (el iframe sigue sonando) */
+.music-player .player-body { max-height: 120px; transition: max-height 0.45s var(--ease-out), opacity 0.3s ease; }
+.music-player.is-compact .player-body { max-height: 0; opacity: 0; overflow: hidden; padding-bottom: 0; }
+.music-player.is-compact:hover .player-body,
+.music-player.is-compact:focus-within .player-body { max-height: 120px; opacity: 1; }
+
+/* ════════════════════════════════════════════════════════════════
+   ANIMACIONES LIGADAS AL SCROLL (CSS scroll-driven, sin JavaScript)
+   Mejora progresiva: solo en navegadores que soportan animation-timeline.
+   ════════════════════════════════════════════════════════════════ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Hero: la foto se desplaza más lento que la página (parallax) */
+    .hero-parallax {
+      animation: heroParallax linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+    /* Hero: el texto se desvanece y sube al bajar */
+    .hero-exit {
+      animation: heroExit linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 70vh;
+    }
+    /* Textos fantasma de fondo: deriva horizontal */
+    .ghost {
+      animation: ghostDrift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    /* Portadas destacadas: leve parallax vertical */
+    .img-parallax img {
+      animation: imgParallax linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+@keyframes heroParallax { to { transform: translate3d(0, 18%, 0); } }
+@keyframes heroExit     { to { opacity: 0; transform: translate3d(0, -40px, 0); } }
+@keyframes ghostDrift   { from { transform: translate3d(6%, 0, 0); } to { transform: translate3d(-6%, 0, 0); } }
+@keyframes imgParallax  { from { transform: scale(1.08) translate3d(0, -3%, 0); } to { transform: scale(1.08) translate3d(0, 3%, 0); } }
+
+/* Hover de portadas: elevación sutil (solo con puntero fino) */
+@media (hover: hover) and (pointer: fine) {
+  .img-lift { transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out); }
+  .img-lift:hover { transform: translate3d(0, -6px, 0); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55); }
+}
+
+.track-list { border-top: 1px solid var(--rafa-border); }
+
+/* Tarjetas de servicios (sección Booking) */
+.service-card {
+  background: var(--rafa-surface);
+  outline: 1px solid var(--rafa-border);
+  transition: background-color 0.3s ease;
+}
+.service-card:hover { background: var(--rafa-surface-2); }
+
+/* ════════════════════════════════════════════════════════════════
+   RONDA 3 · Interacción táctil, textos destacados y parallax
+   ════════════════════════════════════════════════════════════════ */
+
+/* Textos destacados: palabra por palabra (desenfoque → nítido) */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal-words .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translate3d(0, 0.55em, 0);
+    filter: blur(6px);
+    transition:
+      opacity 0.7s ease calc(var(--rd, 0s) + var(--i, 0) * 0.035s),
+      transform 0.8s var(--ease-out) calc(var(--rd, 0s) + var(--i, 0) * 0.035s),
+      filter 0.8s ease calc(var(--rd, 0s) + var(--i, 0) * 0.035s);
+  }
+  .reveal-words.is-in .w { opacity: 1; transform: none; filter: none; }
+}
+
+/* Palabras en acento: subrayado que se dibuja al aparecer */
+.hl {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 92%;
+  background-size: 0% 1px;
+  transition: background-size 1s var(--ease-out) 0.45s;
+}
+.reveal.is-in .hl, .reveal.is-in.hl { background-size: 100% 1px; }
+@media (prefers-reduced-motion: reduce) { .hl { background-size: 100% 1px; transition: none; } }
+
+/* Banda parallax */
+.parallax-band { height: clamp(440px, 85svh, 780px); }
+.parallax-media { top: -14%; height: 128%; will-change: transform; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .parallax-media {
+      animation: bandParallax linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+@keyframes bandParallax {
+  from { transform: translate3d(0, -11%, 0) scale(1.04); }
+  to   { transform: translate3d(0, 11%, 0) scale(1); }
+}
+
+/* Barra de progreso de lectura (scroll-driven) */
+.scroll-progress { display: none; }
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-progress {
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      z-index: 10015;
+      background: var(--rafa-accent);
+      transform-origin: 0 50%;
+      transform: scaleX(0);
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+@keyframes progress { to { transform: scaleX(1); } }
+
+/* Respuesta al toque: onda + leve presión */
+.btn-play, .btn-spotify, .btn-apple, .btn-subscribe, .track-row, .service-card, .tap-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(200, 176, 138, 0.35) 0%, rgba(200, 176, 138, 0) 60%);
+  transform: scale(0);
+  animation: ripple 0.65s var(--ease-out) forwards;
+}
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .btn-play, .btn-spotify, .btn-apple, .btn-subscribe, .single-card-img, .service-card, .player-btn, .to-top, .player-fab {
+    transition-property: transform, background-color, color, box-shadow;
+    transition-duration: 0.2s;
+  }
+  .btn-play:active, .btn-spotify:active, .btn-apple:active, .btn-subscribe:active,
+  .player-btn:active, .to-top:active, .player-fab:active { transform: scale(0.95); }
+  .single-card-img:active, .service-card:active { transform: scale(0.98); }
+  .track-row:active { background-color: var(--rafa-surface-2); }
+}
+
+/* Táctil: las portadas muestran siempre el título (no hay hover) */
+@media (hover: none) {
+  .single-cover-overlay { opacity: 1; }
 }
