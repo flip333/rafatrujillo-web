@@ -29,7 +29,7 @@ Navegador ──► Vercel (Next.js 16)
 | **3. Resend** | Dominio `rafatrujillo.xyz` agregado (DKIM, SPF, MX de rebotes y DMARC `p=none` creados en Vercel DNS). Verificación en curso: espera a que el registro .xyz publique el dominio | ⏳ Verificando |
 | **4. Vercel** | Repositorio en GitHub, variables de entorno, activar Web Analytics y Speed Insights, dominio propio, reglas de Firewall | ⏳ |
 | **5. Prueba end-to-end** | Alta → correo → confirmar → bienvenida → baja one-click, en un *preview deployment* | ⏳ |
-| **6. Lanzamiento** | Producción, Search Console + sitemap, monitoreo de uptime | ⏳ |
+| **6. Lanzamiento** | En producción en https://rafatrujillo.xyz (8 oct 2026). Pendiente: Search Console + sitemap, monitoreo de uptime | ✅ Desplegado |
 | **7. Después** | Panel de métricas privado, webhooks de Resend (aperturas/clics), broadcasts por lanzamiento | Backlog |
 
 ---
