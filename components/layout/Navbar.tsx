@@ -31,6 +31,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen]         = useState(false)
   const [active, setActive]     = useState('inicio')
+  const isAdmin = pathname?.startsWith('/admin')
   const menuBtn  = useRef<HTMLButtonElement>(null)
   const closeBtn = useRef<HTMLButtonElement>(null)
 
@@ -65,6 +66,8 @@ export function Navbar() {
       btn?.focus()
     }
   }, [open])
+
+  if (isAdmin) return null
 
   return (
     <>

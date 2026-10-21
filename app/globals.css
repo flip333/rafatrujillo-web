@@ -750,3 +750,25 @@ html[data-cursor] textarea {
 @media (prefers-reduced-motion: no-preference) {
   .faq-item[open] p { animation: heroFade 0.5s var(--ease-out) both; }
 }
+
+/* ─── Dashboard /admin: tooltip de las barras diarias ─── */
+.day-bar { position: relative; outline: none; }
+.day-bar:hover > div, .day-bar:focus-visible > div { filter: brightness(1.25); }
+.day-bar::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  color: var(--rafa-text);
+  background: #000;
+  border: 1px solid var(--rafa-border);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 5;
+}
+.day-bar:hover::after, .day-bar:focus-visible::after { opacity: 1; }

@@ -11,6 +11,8 @@ const ALLOWED = new Set<string>(TRACKED_EVENTS)
 export async function POST(req: Request) {
   const noContent = new Response(null, { status: 204 })
   if (!isSameOrigin(req) || !isDbConfigured()) return noContent
+  // Las pruebas en local no ensucian las métricas de producción
+  if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(new URL(req.url).host)) return noContent
 
   let body: Record<string, unknown>
   try {

@@ -6,7 +6,8 @@ import { t, localeFromPath } from '@/lib/i18n'
 
 /* Botón "volver arriba": aparece después de recorrer una pantalla y media. */
 export function BackToTop() {
-  const label = t(localeFromPath(usePathname())).nav.toTop
+  const pathname = usePathname()
+  const label = t(localeFromPath(pathname)).nav.toTop
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -15,6 +16,8 @@ export function BackToTop() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  if (pathname?.startsWith('/admin')) return null
 
   return (
     <button

@@ -25,7 +25,7 @@ function sessionId(): string {
       en Hobby se ignoran sin error).
    2) Nuestra tabla `events` en Supabase vía /api/track (gratis). */
 export function track(name: TrackedEvent, props: Props = {}) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || location.pathname.startsWith('/admin')) return
   try {
     vercelTrack(name, props)
   } catch {}

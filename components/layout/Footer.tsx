@@ -33,7 +33,8 @@ const COL_LINK: React.CSSProperties = {
 }
 
 export function Footer() {
-  const locale = localeFromPath(usePathname())
+  const pathname = usePathname()
+  const locale = localeFromPath(pathname)
   const c = t(locale)
   const base = locale === 'en' ? '/en' : '/'
 
@@ -65,6 +66,8 @@ export function Footer() {
     { label: 'YouTube ↗',     href: ARTIST.urls.youtube    },
     { label: 'Instagram ↗',   href: ARTIST.urls.instagram  },
   ]
+
+  if (pathname?.startsWith('/admin')) return null
 
   return (
     <footer style={{ backgroundColor: 'var(--rafa-surface)', borderTop: '1px solid var(--rafa-border)' }}>

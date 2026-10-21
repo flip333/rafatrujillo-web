@@ -1,36 +1,25 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { timingSafeEqual } from 'node:crypto'
+import { ADMIN_COOKIE, isValidAdminCookie } from '@/lib/server/admin-auth'
 
-/* Protege el panel /admin con autenticación básica (usuario "admin" +
-   ADMIN_PASSWORD). Sin ADMIN_PASSWORD configurada, el panel queda cerrado. */
+/* Protege el panel de métricas (/admin) y su exportación (/api/admin/*).
+   Sin sesión válida → pantalla de ingreso (/admin/login). */
 export function proxy(req: NextRequest) {
-  const password = process.env.ADMIN_PASSWORD
-  const unauthorized = () =>
-    new NextResponse('Autenticación requerida', {
-      status: 401,
-      headers: { 'WWW-Authenticate': 'Basic realm="rafatrujillo admin", charset="UTF-8"', 'Cache-Control': 'no-store' },
-    })
+  const { pathname } = req.nextUrl
+  const isLogin = pathname === '/admin/login' || pathname === '/api/admin/login'
 
-  if (!password) return new NextResponse('Panel no configurado', { status: 503 })
-
-  const header = req.headers.get('authorization') ?? ''
-  if (!header.startsWith('Basic ')) return unauthorized()
-
-  let user = ''
-  let pass = ''
-  try {
-    const decoded = atob(header.slice(6))
-    const i = decoded.indexOf(':')
-    user = decoded.slice(0, i)
-    pass = decoded.slice(i + 1)
-  } catch {
-    return unauthorized()
+  if (!process.env.ADMIN_PASSWORD) {
+    return new NextResponse('Panel no configurado', { status: 503 })
   }
 
-  const a = Buffer.from(pass)
-  const b = Buffer.from(password)
-  const ok = user === 'admin' && a.length === b.length && timingSafeEqual(a, b)
-  if (!ok) return unauthorized()
+  const authed = isValidAdminCookie(req.cookies.get(ADMIN_COOKIE)?.value)
+
+  if (!authed && !isLogin) {
+    if (pathname.startsWith('/api/')) return new NextResponse('No autorizado', { status: 401 })
+    const url = req.nextUrl.clone()
+    url.pathname = '/admin/login'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
 
   const res = NextResponse.next()
   res.headers.set('X-Robots-Tag', 'noindex, nofollow')
@@ -39,5 +28,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*'],
+  matcher: ['/admin', '/admin/:path*', '/api/admin/:path*'],
 }
