@@ -11,6 +11,7 @@ import { AnalyticsTracker } from '@/components/shared/AnalyticsTracker'
 import { MusicPlayer }      from '@/components/shared/MusicPlayer'
 import { BackToTop }        from '@/components/shared/BackToTop'
 import { TapEffects }       from '@/components/shared/TapEffects'
+import { CookieConsent }    from '@/components/shared/CookieConsent'
 
 const bebasNeue = Bebas_Neue({
   weight: '400',
@@ -115,6 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TapEffects />
         <AnalyticsTracker />
         <VercelInsights />
+        <CookieConsent />
       </body>
     </html>
   )

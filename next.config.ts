@@ -7,12 +7,13 @@ const isProd = process.env.NODE_ENV === 'production'
 const csp = [
   "default-src 'self'",
   // 'unsafe-eval': lo exige la Spotify iFrame API oficial (reproductor global).
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://open.spotify.com https://embed-cdn.spotifycdn.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://open.spotify.com https://embed-cdn.spotifycdn.com https://connect.facebook.net",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://i.scdn.co https://*.spotifycdn.com https://i.ytimg.com",
+  "img-src 'self' data: blob: https://i.scdn.co https://*.spotifycdn.com https://i.ytimg.com https://www.facebook.com",
   "font-src 'self'",
   "frame-src https://open.spotify.com https://www.youtube-nocookie.com https://www.youtube.com",
-  "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://open.spotify.com",
+  // Pixel de Meta (solo se carga con consentimiento): script en connect.facebook.net, eventos a www.facebook.com/tr
+  "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://open.spotify.com https://connect.facebook.net https://www.facebook.com",
   "media-src 'self'",
   "worker-src 'self' blob:",
   "manifest-src 'self'",

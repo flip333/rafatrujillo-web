@@ -118,3 +118,12 @@ CREATE TABLE IF NOT EXISTS assistant_files (
   filename    TEXT,
   created_at  TEXT NOT NULL
 );
+
+-- Conexiones configuradas desde el panel (/admin → Conexiones).
+-- Los secretos (secret = 1) van cifrados con AES-GCM (llave CONFIG_KEY del Worker).
+CREATE TABLE IF NOT EXISTS settings (
+  key         TEXT PRIMARY KEY,
+  value       TEXT    NOT NULL,
+  secret      INTEGER NOT NULL DEFAULT 0,
+  updated_at  TEXT    NOT NULL
+);

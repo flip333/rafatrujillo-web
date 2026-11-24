@@ -19,6 +19,8 @@ const ALLOWED = [
   /^insights\/[0-9a-f-]{36}$/,
   /^content\/(plan|status|draft)$/,
   /^ads\/summary$/,
+  /^connections$/,
+  /^connections\/meta\/(accounts|pixels|capi-test)$/,
   /^board(\/version)?$/,
   /^board\/(items|meetings)$/,
   /^board\/(items|meetings)\/[0-9a-f-]{36}$/,

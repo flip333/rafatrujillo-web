@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { newEventId, pixelTrack } from '@/lib/pixel'
 
 const COPY = {
   confirm: {
@@ -30,14 +31,17 @@ export function SubscriptionAction({ action, token }: { action: keyof typeof COP
 
   const submit = async () => {
     setStatus('loading')
+    const eventId = newEventId()
     try {
       const res = await fetch(c.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, eventId }),
       })
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean }
-      setStatus(res.ok && data.ok ? 'done' : 'error')
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; status?: string; newlyConfirmed?: boolean }
+      const ok = res.ok && Boolean(data.ok)
+      if (ok && action === 'confirm' && data.newlyConfirmed) pixelTrack('CompleteRegistration', eventId)
+      setStatus(ok ? 'done' : 'error')
     } catch {
       setStatus('error')
     }

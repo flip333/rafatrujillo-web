@@ -34,7 +34,7 @@ export const adsConfig = (env: Env) => ({
   meta: META_KEYS.filter(k => !env[k]),
 })
 
-function totalsOf(rows: CampaignRow[]) {
+export function totalsOf(rows: CampaignRow[]) {
   const t = rows.reduce((a, r) => ({ spend: a.spend + r.spend, impressions: a.impressions + r.impressions, clicks: a.clicks + r.clicks, conversions: a.conversions + r.conversions }), { spend: 0, impressions: 0, clicks: 0, conversions: 0 })
   return {
     ...t,
@@ -111,47 +111,6 @@ export async function googleSummary(env: Env, days: 7 | 30): Promise<PlatformSum
   }
 }
 
-// ── Meta Ads ──
-export async function metaSummary(env: Env, days: 7 | 30): Promise<PlatformSummary> {
-  const missing = adsConfig(env).meta
-  const base = { platform: 'meta' as const, days, fetchedAt: new Date().toISOString() }
-  if (missing.length) return { ...base, configured: false, missing }
-  const act = `act_${env.META_AD_ACCOUNT_ID!.replace(/^act_/, '')}`
-  const graph = `https://graph.facebook.com/${env.META_API_VERSION}`
-  const headers = { Authorization: `Bearer ${env.META_ACCESS_TOKEN}` }
-  try {
-    const accRes = await fetch(`${graph}/${act}?fields=name,currency`, { headers })
-    const acc = (await accRes.json()) as { name?: string; currency?: string; error?: { message?: string } }
-    if (!accRes.ok) throw new Error(`meta: ${acc.error?.message ?? accRes.status}`)
+// ── Meta Ads: ver meta-insights.ts ──
+export { metaSummary } from './meta-insights'
 
-    const params = new URLSearchParams({
-      level: 'campaign',
-      date_preset: days === 7 ? 'last_7d' : 'last_30d',
-      fields: 'campaign_name,spend,impressions,clicks,actions',
-      limit: '50',
-    })
-    const res = await fetch(`${graph}/${act}/insights?${params}`, { headers })
-    const data = (await res.json()) as { data?: Record<string, any>[]; error?: { message?: string } }
-    if (!res.ok) throw new Error(`meta: ${data.error?.message ?? res.status}`)
-
-    const isConversion = (t: string) => /lead|complete_registration|purchase|subscribe|contact/.test(t)
-    const campaigns: CampaignRow[] = (data.data ?? []).map(r => {
-      const impressions = Number(r.impressions ?? 0), clicks = Number(r.clicks ?? 0)
-      const conversions = ((r.actions ?? []) as { action_type: string; value: string }[])
-        .filter(a => isConversion(a.action_type)).reduce((s, a) => s + Number(a.value || 0), 0)
-      return {
-        name: String(r.campaign_name ?? '—'), status: 'ACTIVE',
-        spend: Number(r.spend ?? 0), impressions, clicks, conversions,
-        ctr: impressions ? Math.round((clicks / impressions) * 10000) / 100 : 0,
-      }
-    }).sort((a, b) => b.spend - a.spend)
-
-    return {
-      ...base, configured: true, missing: [],
-      account: { name: acc.name ?? 'Meta Ads', currency: acc.currency ?? '' },
-      totals: totalsOf(campaigns), campaigns,
-    }
-  } catch (e) {
-    return { ...base, configured: true, missing: [], error: e instanceof Error ? e.message.slice(0, 300) : 'error' }
-  }
-}

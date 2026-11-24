@@ -7,6 +7,7 @@ import { ARTIST } from '@/lib/artist-data'
 import { t, localeFromPath } from '@/lib/i18n'
 import { track } from '@/lib/analytics'
 import { CURSOR_KEY } from '@/components/shared/CustomCursor'
+import { openConsent } from '@/lib/pixel'
 
 const COL_HEAD: React.CSSProperties = {
   fontSize: '0.7rem',
@@ -98,6 +99,9 @@ export function Footer() {
             <Link href={locale === 'en' ? '/en/privacy' : '/privacidad'} style={COL_LINK} className="hover:!text-[var(--rafa-accent)]">
               {c.footer.privacy}
             </Link>
+            <button type="button" onClick={openConsent} style={COL_LINK} className="hover:!text-[var(--rafa-accent)]">
+              {c.footer.cookies}
+            </button>
           </div>
 
           <div>

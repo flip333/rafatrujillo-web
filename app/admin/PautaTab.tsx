@@ -6,9 +6,16 @@ import { isServicesConfigured, servicesFetch } from '@/lib/server/admin-services
 
 interface Totals { spend: number; impressions: number; clicks: number; conversions: number; ctr: number; cpc: number; cpa: number | null }
 interface Campaign { name: string; status: string; spend: number; impressions: number; clicks: number; conversions: number; ctr: number }
+interface MetaCampaign extends Campaign {
+  id: string; objectiveLabel: string; reach: number; frequency: number; cpm: number; linkClicks: number; linkCtr: number
+  landingViews: number; leads: number; registrations: number; videoViews: number; thruplays: number; engagement: number
+  results: number; resultLabel: string; costPerResult: number | null; tips: string[]
+}
+interface MetaDay { day: string; spend: number; reach: number; linkClicks: number; registrations: number; leads: number }
 interface Platform {
   platform: 'google' | 'meta'; configured: boolean; missing: string[]; error?: string
   account?: { name: string; currency: string }; days: number; totals?: Totals; campaigns?: Campaign[]; fetchedAt: string
+  metaCampaigns?: MetaCampaign[]; daily?: MetaDay[]
 }
 
 const NOTE: React.CSSProperties = { fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--rafa-muted)' }
@@ -81,10 +88,17 @@ export async function PautaTab({ days, refresh }: { days: 7 | 30; refresh: boole
       {data && (
         <>
           <Combined google={data.google} meta={data.meta} />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <PlatformCard p={data.google} />
-            <PlatformCard p={data.meta} />
-          </div>
+          {data.meta.metaCampaigns ? (
+            <>
+              <MetaSection p={data.meta} />
+              <PlatformCard p={data.google} />
+            </>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <PlatformCard p={data.google} />
+              <PlatformCard p={data.meta} />
+            </div>
+          )}
         </>
       )}
     </div>
@@ -118,7 +132,14 @@ function PlatformCard({ p }: { p: Platform }) {
         </span>
       </div>
 
-      {!p.configured && (
+      {!p.configured && p.platform === 'meta' && (
+        <div className="mt-4">
+          <p style={NOTE}>Conecta tu cuenta publicitaria de Meta en modo solo lectura con la guía paso a paso (10–15 minutos).</p>
+          <Link href="/admin?tab=conexiones" className="mt-3 px-4 py-2" style={{ display: 'inline-block', fontSize: '0.8rem', background: 'var(--rafa-accent)', color: '#0a0a0a' }}>Conectar Meta →</Link>
+        </div>
+      )}
+
+      {!p.configured && p.platform === 'google' && (
         <div className="mt-4">
           <p style={NOTE}>Para ver esta pauta aquí, configura estas credenciales como secretos del Worker de Cloudflare (nunca en el código):</p>
           <ol className="mt-3 flex flex-col gap-2" style={{ paddingLeft: '1.1rem', listStyle: 'decimal', fontSize: '0.85rem', color: 'var(--rafa-text)', lineHeight: 1.55 }}>
@@ -193,5 +214,122 @@ function Mini({ label, value }: { label: string; value: string }) {
       <p style={{ fontFamily: 'var(--font-type)', fontWeight: 700, fontSize: '1.25rem', color: 'var(--rafa-text)' }}>{value}</p>
       <p style={{ fontSize: '0.72rem', color: 'var(--rafa-muted)' }}>{label}</p>
     </div>
+  )
+}
+
+/* ───────────── Meta: detalle por campaña ───────────── */
+
+function MetaSection({ p }: { p: Platform }) {
+  const cur = p.account?.currency
+  const cs = p.metaCampaigns ?? []
+  const sum = (k: keyof MetaCampaign) => cs.reduce((a, c) => a + (Number(c[k]) || 0), 0)
+  const spend = sum('spend'), regs = sum('registrations'), leads = sum('leads')
+  const subs = regs || leads
+  const active = cs.filter(c => c.status === 'Activa').length
+  return (
+    <section className="p-5 flex flex-col gap-5" style={CARD}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 style={H2}>Meta Ads · Facebook e Instagram</h2>
+        <span style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', border: `1px solid ${p.error ? '#e06060' : '#7fbf8e'}`, color: p.error ? '#e06060' : '#7fbf8e' }}>{p.error ? '● Error de conexión' : '● Conectado · solo lectura'}</span>
+      </div>
+      {p.error && <p role="alert" style={{ color: '#e06060', fontSize: '0.85rem' }}>{p.error} · <Link href="/admin?tab=conexiones" style={{ textDecoration: 'underline' }}>Revisar la conexión</Link></p>}
+      {!p.error && (
+        <>
+          <p style={NOTE}>{p.account?.name} · últimos {p.days} días · {cs.length} {cs.length === 1 ? 'campaña' : 'campañas'} con actividad{active ? ` (${active} activas ahora)` : ''} · actualizado {new Date(p.fetchedAt).toLocaleString('es-CO', { timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+            <Kpi label="Inversión" value={money(spend, cur)} />
+            <Kpi label="Alcance" value={n(sum('reach'))} hint="personas (suma por campaña)" />
+            <Kpi label="Clics al enlace" value={n(sum('linkClicks'))} />
+            <Kpi label="Visitas a la web" value={n(sum('landingViews'))} hint="cargaron la página" />
+            <Kpi label={regs ? 'Suscriptores' : 'Suscripciones'} value={n(subs)} hint={regs ? 'confirmados (pixel)' : leads ? 'formularios (pixel)' : 'aún sin datos del pixel'} />
+            <Kpi label="Costo por suscriptor" value={subs ? money(spend / subs, cur) : '—'} />
+          </div>
+          {!!p.daily?.length && <SpendBars days={p.daily} cur={cur} />}
+          {cs.length === 0 ? <p style={NOTE}>Sin campañas con actividad en este periodo.</p> : (
+            <div className="flex flex-col gap-3">
+              {cs.map(c => <MetaCampaignCard key={c.id} c={c} cur={cur} />)}
+            </div>
+          )}
+          <details style={NOTE}>
+            <summary style={{ cursor: 'pointer', color: 'var(--rafa-text)' }}>¿Qué significa cada medición?</summary>
+            <ul className="mt-2 flex flex-col gap-1.5" style={{ paddingLeft: '1rem', listStyle: 'disc' }}>
+              <li><b>Alcance:</b> personas distintas que vieron el anuncio. <b>Impresiones:</b> veces que se mostró (una persona puede verlo varias veces).</li>
+              <li><b>Frecuencia:</b> veces promedio que cada persona lo vio. Por encima de 3–4 la gente se cansa.</li>
+              <li><b>CTR del enlace:</b> de cada 100 personas que lo ven, cuántas tocan el enlace. En música, más de 1 % es bueno.</li>
+              <li><b>Visitas a la web:</b> clics que realmente cargaron la página. Si son muchos menos que los clics, hay clics accidentales o la web tarda en abrir.</li>
+              <li><b>CPM:</b> lo que cuesta mostrar el anuncio 1.000 veces.</li>
+              <li><b>Suscripciones (formulario):</b> llenaron el formulario. <b>Suscriptores confirmados:</b> además confirmaron desde su correo. Meta solo cuenta a quien aceptó las cookies.</li>
+              <li><b>ThruPlay:</b> vieron el video completo o al menos 15 segundos.</li>
+            </ul>
+          </details>
+        </>
+      )}
+    </section>
+  )
+}
+
+function SpendBars({ days, cur }: { days: MetaDay[]; cur?: string }) {
+  const max = Math.max(1, ...days.map(d => d.spend))
+  const subs = days.reduce((a, d) => a + (d.registrations || d.leads), 0)
+  return (
+    <figure>
+      <p style={{ ...NOTE, marginBottom: 6 }}>Inversión por día{subs ? ' · los puntos verdes marcan días con suscripciones' : ''}</p>
+      <div className="flex items-end gap-[2px]" style={{ height: 90 }} role="img" aria-label={`Inversión diaria, máximo ${money(max, cur)}`}>
+        {days.map(d => {
+          const s = d.registrations || d.leads
+          return (
+            <div key={d.day} className="day-bar flex-1 h-full flex flex-col justify-end items-center" tabIndex={0}
+              data-tip={`${new Date(d.day + 'T17:00:00Z').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}: ${money(d.spend, cur)} · ${n(d.linkClicks)} clics${s ? ` · ${n(s)} suscripciones` : ''}`}>
+              {s > 0 && <span aria-hidden="true" style={{ width: 5, height: 5, borderRadius: '50%', background: '#7fbf8e', marginBottom: 3 }} />}
+              <div style={{ width: '100%', height: `${Math.max(d.spend ? 3 : 1, (d.spend / max) * 100)}%`, background: d.spend ? 'var(--rafa-accent)' : 'var(--rafa-border)', borderRadius: '3px 3px 0 0' }} />
+            </div>
+          )
+        })}
+      </div>
+    </figure>
+  )
+}
+
+function MetaCampaignCard({ c, cur }: { c: MetaCampaign; cur?: string }) {
+  const tone = c.status === 'Activa' ? '#7fbf8e' : c.status === 'Con problemas' || c.status === 'Rechazada' ? '#e06060' : 'var(--rafa-muted)'
+  return (
+    <article className="p-4" style={{ border: '1px solid var(--rafa-border)', background: 'var(--rafa-surface-2)' }}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h3 style={{ color: 'var(--rafa-text)', fontSize: '0.98rem', fontWeight: 500 }}>{c.name}</h3>
+          <p style={NOTE}>{c.objectiveLabel} · <span style={{ color: tone }}>{c.status}</span></p>
+        </div>
+        <div className="text-right">
+          <p style={{ fontFamily: 'var(--font-type)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--rafa-text)' }}>{n(c.results)}</p>
+          <p style={{ fontSize: '0.72rem', color: 'var(--rafa-muted)' }}>{c.resultLabel}{c.costPerResult != null ? ` · ${money(c.costPerResult, cur)} c/u` : ''}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-4">
+        <Mini label="Inversión" value={money(c.spend, cur)} />
+        <Mini label="Alcance" value={n(c.reach)} />
+        <Mini label="Frecuencia" value={n(c.frequency, 1)} />
+        <Mini label="Clics al enlace" value={n(c.linkClicks)} />
+        <Mini label="CTR enlace" value={`${n(c.linkCtr, 2)} %`} />
+        <Mini label="Visitas web" value={n(c.landingViews)} />
+      </div>
+      <details className="mt-3" style={NOTE}>
+        <summary style={{ cursor: 'pointer' }}>Todas las mediciones</summary>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-3">
+          <Mini label="Impresiones" value={n(c.impressions)} />
+          <Mini label="CPM" value={money(c.cpm, cur)} />
+          <Mini label="Clics (todos)" value={n(c.clicks)} />
+          <Mini label="Suscripciones (form.)" value={n(c.leads)} />
+          <Mini label="Suscriptores confirmados" value={n(c.registrations)} />
+          <Mini label="Interacciones" value={n(c.engagement)} />
+          <Mini label="Reproducciones 3 s" value={n(c.videoViews)} />
+          <Mini label="ThruPlay" value={n(c.thruplays)} />
+        </div>
+      </details>
+      {c.tips.length > 0 && (
+        <ul className="mt-3 flex flex-col gap-1.5">
+          {c.tips.map(t => <li key={t} className="p-2.5" style={{ fontSize: '0.84rem', lineHeight: 1.55, color: 'var(--rafa-text)', borderLeft: '2px solid var(--rafa-accent)', background: 'var(--rafa-surface)' }}>💡 {t}</li>)}
+        </ul>
+      )}
+    </article>
   )
 }

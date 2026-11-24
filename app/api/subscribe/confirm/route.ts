@@ -3,6 +3,7 @@ import { db } from '@/lib/server/supabase'
 import { isDbConfigured } from '@/lib/server/env'
 import { sendReleaseInvite, syncContact } from '@/lib/server/email'
 import { isUuid, isSameOrigin, json, readJson } from '@/lib/server/security'
+import { sendServerConversion, validEventId } from '@/lib/server/tracking'
 
 /* POST /api/subscribe/confirm — confirma el doble opt-in.
    Es POST (no GET) para que los escáneres de enlaces de los clientes de
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
   if (!isSameOrigin(req)) return json({ ok: false, error: 'forbidden' }, 403)
   if (!isDbConfigured())  return json({ ok: false, error: 'not_configured' }, 503)
 
-  const { token } = (await readJson<{ token?: unknown }>(req, 1024)) ?? {}
+  const { token, eventId } = (await readJson<{ token?: unknown; eventId?: unknown }>(req, 1024)) ?? {}
   if (!isUuid(token)) return json({ ok: false, error: 'invalid_token' }, 400)
 
   const supabase = db()
@@ -45,10 +46,11 @@ export async function POST(req: Request) {
       }
       await syncContact(sub.email, sub.name, false)
       await supabase.from('events').insert({ name: 'subscribe_confirmed', path: '/suscripcion' })
+      await sendServerConversion(req, { name: 'CompleteRegistration', eventId: validEventId(eventId), email: sub.email, path: '/suscripcion' })
     } catch (e) {
       console.error('[confirm] automation error', e)
     }
   })
 
-  return json({ ok: true, status: 'confirmed' })
+  return json({ ok: true, status: 'confirmed', newlyConfirmed: true })
 }

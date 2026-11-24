@@ -1,4 +1,6 @@
+import { after } from 'next/server'
 import { db } from '@/lib/server/supabase'
+import { sendServerConversion, validEventId } from '@/lib/server/tracking'
 import { isDbConfigured } from '@/lib/server/env'
 import { sendConfirmation } from '@/lib/server/email'
 import {
@@ -95,6 +97,10 @@ export async function POST(req: Request) {
     .from('subscribers')
     .update({ confirmation_sent_at: new Date().toISOString() })
     .eq('email', email)
+
+  // Pixel de Meta (servidor): solo con consentimiento de medición
+  const eventId = validEventId(body.eventId)
+  after(() => sendServerConversion(req, { name: 'Lead', eventId, email, path: '/' }))
 
   return json({ ok: true, status: 'pending' })
 }

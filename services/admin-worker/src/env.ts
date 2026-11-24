@@ -22,6 +22,13 @@ export interface Env {
   META_AD_ACCOUNT_ID?: string
   META_API_VERSION: string
 
+  // Pixel de Meta + API de Conversiones (opcionales; normalmente se configuran desde el panel)
+  META_PIXEL_ID?: string
+  META_CAPI_TOKEN?: string
+
+  // Llave para cifrar los tokens que Rafa guarda desde /admin → Conexiones (secreto, ≥ 32 caracteres)
+  CONFIG_KEY?: string
+
   // GitHub (opcional): sube el límite de descargas de skills desde repos públicos
   GITHUB_TOKEN?: string
 }

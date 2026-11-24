@@ -3,6 +3,7 @@
 import { useId, useState } from 'react'
 import Link from 'next/link'
 import { track } from '@/lib/analytics'
+import { newEventId, pixelTrack } from '@/lib/pixel'
 import { t, type Locale } from '@/lib/i18n'
 
 export const SUBSCRIBED_KEY = 'rafa-subscribed'
@@ -44,18 +45,20 @@ export function SubscribeForm({ source, onSuccess, secondary, autoFocus, locale 
     setStatus('loading')
     setError('')
     track('subscribe_submit', { source })
+    const eventId = newEventId() // mismo id en navegador y servidor: Meta cuenta 1 sola vez
 
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, consent, website, source: `${source}${locale === 'en' ? '-en' : ''}` }),
+        body: JSON.stringify({ name, email, consent, website, source: `${source}${locale === 'en' ? '-en' : ''}`, eventId }),
       })
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
       if (!res.ok || !data.ok) throw new Error(data.error || 'unknown')
 
       setStatus('success')
       track('subscribe_success', { source })
+      pixelTrack('Lead', eventId)
       try { localStorage.setItem(SUBSCRIBED_KEY, '1') } catch {}
       onSuccess?.()
     } catch (err) {

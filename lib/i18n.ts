@@ -126,7 +126,7 @@ const es = {
   },
   footer: {
     nav: 'Navegación', listen: 'Escuchar', artist: 'Artista', booking: 'Booking y prensa',
-    privacy: 'Privacidad', cursor: 'Cursor clásico', cursorOn: 'Cursor animado',
+    privacy: 'Privacidad', cookies: 'Cookies', cursor: 'Cursor clásico', cursorOn: 'Cursor animado',
   },
 }
 
@@ -254,7 +254,7 @@ const en: Dict = {
   },
   footer: {
     nav: 'Navigation', listen: 'Listen', artist: 'Artist', booking: 'Booking & press',
-    privacy: 'Privacy', cursor: 'Classic cursor', cursorOn: 'Animated cursor',
+    privacy: 'Privacy', cookies: 'Cookies', cursor: 'Classic cursor', cursorOn: 'Animated cursor',
   },
 }
 

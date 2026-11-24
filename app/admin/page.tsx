@@ -9,6 +9,7 @@ import { LogoutButton } from './LogoutButton'
 import { PautaTab } from './PautaTab'
 import { AssistantTab } from './AssistantTab'
 import { CalendarTab } from './CalendarTab'
+import { ConnectionsTab } from './ConnectionsTab'
 import { LiveRefresh } from './LiveRefresh'
 import { NEXT_RELEASE } from '@/lib/artist-data'
 
@@ -28,11 +29,12 @@ const fmtDate = (iso: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric
   new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', ...opts }).format(new Date(iso))
 const n = (v: number) => new Intl.NumberFormat('es-CO').format(v)
 
-type Tab = 'metricas' | 'calendario' | 'pauta' | 'asistente'
+type Tab = 'metricas' | 'calendario' | 'pauta' | 'conexiones' | 'asistente'
 const TABS: { v: Tab; label: string; title: string }[] = [
   { v: 'metricas',  label: 'Métricas',          title: 'Métricas' },
   { v: 'calendario', label: 'Calendario',       title: 'Calendario' },
   { v: 'pauta',     label: 'Pauta (SEM)',       title: 'Pauta' },
+  { v: 'conexiones', label: 'Conexiones',       title: 'Conexiones' },
   { v: 'asistente', label: 'Asistente SEO · GEO', title: 'Asistente' },
 ]
 
@@ -50,6 +52,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   }
   if (tab === 'calendario') {
     return <Shell range={range} tab={tab}><CalendarTab nextRelease={NEXT_RELEASE ? { title: NEXT_RELEASE.title, releaseDate: NEXT_RELEASE.releaseDate } : null} /></Shell>
+  }
+  if (tab === 'conexiones') {
+    return <Shell range={range} tab={tab}><ConnectionsTab /></Shell>
   }
   if (tab === 'asistente') {
     return <Shell range={range} tab={tab}><AssistantTab /></Shell>

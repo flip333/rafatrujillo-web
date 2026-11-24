@@ -8,6 +8,8 @@ import type { AiReading } from './agent'
 import { boardRoute, type Item } from './board'
 import { brandSystem, downloadFile, readReferenceWithAI, runAgent, type ChatTurn } from './agent'
 import { enabledSkills, skillsRoute } from './skills'
+import { saveSettings, settingsStatus, withSettings } from './settings'
+import { metaAccounts, metaCapiTest, metaPixels, metaPixelStatus, sendConversion, type ConversionInput } from './meta'
 
 /* rafa-admin-services — microservicios del panel /admin.
    Seguridad:
@@ -70,7 +72,8 @@ function cleanContext(raw: unknown): SiteContext | null {
   }
 }
 
-async function adsSummary(env: Env, days: 7 | 30, force = false) {
+async function adsSummary(rawEnv: Env, days: 7 | 30, force = false) {
+  const env = await withSettings(rawEnv)
   const key = `summary-${days}`
   if (!force) {
     const row = await env.DB.prepare('SELECT payload, fetched_at FROM ads_cache WHERE key = ?').bind(key).first<{ payload: string; fetched_at: string }>()
@@ -90,7 +93,7 @@ async function handle(req: Request, env: Env): Promise<Response> {
   const m = req.method
 
   if (path === '/health' && m === 'GET') {
-    const cfg = adsConfig(env)
+    const cfg = adsConfig(await withSettings(env))
     return json({ ok: true, ai: aiEnabled(env), model: env.ANTHROPIC_MODEL, ads: { google: !cfg.google.length, meta: !cfg.meta.length }, time: now() })
   }
 
@@ -255,6 +258,68 @@ async function handle(req: Request, env: Env): Promise<Response> {
     if (res) return res
   }
 
+  // Conexiones (pestaña /admin → Conexiones)
+  if (path === '/connections' && m === 'GET') {
+    const status = await settingsStatus(env)
+    const e = await withSettings(env)
+    let pixel: unknown = null
+    if (e.META_PIXEL_ID && e.META_ACCESS_TOKEN) {
+      const r = await metaPixelStatus(e, e.META_ACCESS_TOKEN, e.META_PIXEL_ID)
+      pixel = r.ok ? r.pixel : { error: r.error }
+    }
+    return json({ ...status, pixel })
+  }
+  if (path === '/connections' && m === 'PUT') {
+    const b = await body<{ values?: Record<string, unknown> }>(req)
+    if (!b?.values || typeof b.values !== 'object') return json({ error: 'invalid_body' }, 400)
+    const r = await saveSettings(env, b.values)
+    return r.ok ? json({ ...(await settingsStatus(env)), ok: true }) : json(r, 400)
+  }
+  if (path === '/connections/meta/accounts' && m === 'POST') {
+    const b = await body<{ token?: string }>(req)
+    const e = await withSettings(env)
+    const tok = typeof b?.token === 'string' && b.token.trim() ? b.token.trim() : e.META_ACCESS_TOKEN
+    if (!tok) return json({ ok: false, error: { code: 'invalid_token', message: 'missing' } }, 400)
+    return json(await metaAccounts(e, tok))
+  }
+  if (path === '/connections/meta/pixels' && m === 'POST') {
+    const e = await withSettings(env)
+    if (!e.META_ACCESS_TOKEN || !e.META_AD_ACCOUNT_ID) return json({ ok: false, error: { code: 'not_found', message: 'ads_not_connected' } })
+    return json(await metaPixels(e, e.META_ACCESS_TOKEN, e.META_AD_ACCOUNT_ID))
+  }
+  if (path === '/connections/meta/capi-test' && m === 'POST') {
+    const b = await body<{ testCode?: string }>(req)
+    const code = String(b?.testCode ?? '').trim()
+    if (!/^TEST[A-Z0-9]{2,20}$/i.test(code)) return json({ ok: false, error: { code: 'invalid_test_code', message: 'invalid' } }, 400)
+    return json(await metaCapiTest(await withSettings(env), code.toUpperCase()))
+  }
+
+  // Medición pública: lo consulta el servidor de la web (nunca el navegador directo)
+  if (path === '/tracking/public' && m === 'GET') {
+    const e = await withSettings(env)
+    return json({ metaPixelId: e.META_PIXEL_ID ?? null, capi: Boolean(e.META_PIXEL_ID && e.META_CAPI_TOKEN) })
+  }
+  if (path === '/tracking/capi' && m === 'POST') {
+    const b = await body<Partial<ConversionInput>>(req)
+    if (!b || !['Lead', 'CompleteRegistration'].includes(String(b.event_name)) || !/^[\w-]{8,64}$/.test(String(b.event_id ?? ''))) return json({ error: 'invalid_body' }, 400)
+    const str = (v: unknown, max: number) => (typeof v === 'string' && v ? v.slice(0, max) : undefined)
+    const url = str(b.event_source_url, 500) ?? ''
+    if (!/^https?:\/\//.test(url)) return json({ error: 'invalid_body' }, 400)
+    const email = str(b.email, 254)
+    const r = await sendConversion(await withSettings(env), {
+      event_name: b.event_name as ConversionInput['event_name'],
+      event_id: String(b.event_id),
+      event_source_url: url,
+      email: email && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? email : undefined,
+      client_ip: str(b.client_ip, 64),
+      user_agent: str(b.user_agent, 400),
+      fbp: str(b.fbp, 200),
+      fbc: str(b.fbc, 500),
+    })
+    if (!r.ok) console.error('capi', r.error)
+    return json(r)
+  }
+
   // Pauta
   if (path === '/ads/summary' && m === 'GET') {
     const days = url.searchParams.get('days') === '7' ? 7 : 30
@@ -277,7 +342,7 @@ export default {
 
   // Cada 6 h: refresca la caché de pauta para que el panel cargue al instante
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext) {
-    const cfg = adsConfig(env)
+    const cfg = adsConfig(await withSettings(env))
     if (cfg.google.length && cfg.meta.length) return
     ctx.waitUntil(Promise.all([adsSummary(env, 30, true), adsSummary(env, 7, true)]))
   },
