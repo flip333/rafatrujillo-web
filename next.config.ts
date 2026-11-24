@@ -14,6 +14,8 @@ const csp = [
   "frame-src https://open.spotify.com https://www.youtube-nocookie.com https://www.youtube.com",
   "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://open.spotify.com",
   "media-src 'self'",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -25,7 +27,13 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+  // Aísla la ventana de otras pestañas/popups (Spectre, tabnabbing); permite popups de OAuth/compartir
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+  { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), hid=(), bluetooth=(), magnetometer=(), gyroscope=(self "https://www.youtube-nocookie.com"), accelerometer=(self "https://www.youtube-nocookie.com"), browsing-topics=(), interest-cohort=()',
+  },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   ...(isProd ? [{ key: 'Content-Security-Policy', value: csp }] : []),
 ]
@@ -45,6 +53,15 @@ const config: NextConfig = {
     return [
       { source: '/:path*', headers: securityHeaders },
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] },
+      // La URL lleva el token de confirmación/baja: que no viaje en el Referer ni se indexe
+      {
+        source: '/suscripcion',
+        headers: [
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+          { key: 'Cache-Control', value: 'no-store' },
+        ],
+      },
     ]
   },
 }

@@ -32,6 +32,10 @@ const es = {
       'Cada canción representa un momento distinto dentro de un tránsito que comienza en el atardecer y avanza hacia la noche.',
       '*“{title}”*, junto a Equo, es el primer sencillo oficial de esta nueva etapa.',
     ],
+    nextLabel: 'Próximo lanzamiento', nextDate: '27 de noviembre',
+    nextText: 'La siguiente canción de *{mb}* llega muy pronto. Mantente pendiente: suscríbete y te aviso el día que salga.',
+    nextCta: 'Avísame cuando salga', nextFollow: 'Seguir en Spotify ↗',
+    nextOut: 'Ya está aquí.', units: { d: 'días', h: 'horas', m: 'min', s: 'seg' },
   },
   about: {
     label: '— El artista',
@@ -70,10 +74,14 @@ const es = {
   lyrics: {
     lyricsOf: 'Letra de', close: 'Cerrar', instrumental: 'Pista instrumental — sin letra.',
     unavailable: 'Letra no disponible por ahora.', copy: 'Copiar enlace', copied: 'Enlace copiado',
+    tabStory: 'Historia', tabLyrics: 'Letra', tabListen: 'Escucha', tabsLabel: 'Secciones de la canción',
+    storyBy: 'Contada por rafatrujillo',
+    listenText: 'Escúchala en Spotify:', openSpotify: 'Abrir en Spotify ↗',
   },
   videos: {
     label: '— Video', title: 'Videoclips', channel: 'Ver canal de YouTube ↗',
     official: 'Video oficial', live: 'Live session', play: 'Reproducir video:',
+    hint: 'Desliza o arrastra para explorar', more: 'Más videoclips', close: 'Cerrar video',
   },
   dates: { label: '— En vivo', title: 'Fechas', tickets: 'Entradas ↗' },
   bands: {
@@ -152,6 +160,10 @@ const en: Dict = {
       'Each song captures a different moment in a journey that begins at sunset and moves into the night.',
       '*“{title}”*, with Equo, is the first official single of this new chapter.',
     ],
+    nextLabel: 'Next release', nextDate: 'November 27',
+    nextText: 'The next song from *{mb}* is almost here. Stay tuned: subscribe and I’ll let you know the day it drops.',
+    nextCta: 'Notify me when it’s out', nextFollow: 'Follow on Spotify ↗',
+    nextOut: 'It’s here.', units: { d: 'days', h: 'hours', m: 'min', s: 'sec' },
   },
   about: {
     label: '— The artist',
@@ -190,10 +202,14 @@ const en: Dict = {
   lyrics: {
     lyricsOf: 'Lyrics of', close: 'Close', instrumental: 'Instrumental track — no lyrics.',
     unavailable: 'Lyrics not available yet.', copy: 'Copy link', copied: 'Link copied',
+    tabStory: 'Story', tabLyrics: 'Lyrics', tabListen: 'Listen', tabsLabel: 'Song sections',
+    storyBy: 'Told by rafatrujillo (in Spanish)',
+    listenText: 'Listen on Spotify:', openSpotify: 'Open in Spotify ↗',
   },
   videos: {
     label: '— Video', title: 'Music videos', channel: 'YouTube channel ↗',
     official: 'Official video', live: 'Live session', play: 'Play video:',
+    hint: 'Scroll or drag to explore', more: 'More videos', close: 'Close video',
   },
   dates: { label: '— Live', title: 'Tour dates', tickets: 'Tickets ↗' },
   bands: {

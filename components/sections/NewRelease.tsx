@@ -4,6 +4,7 @@ import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { GhostText }    from '@/components/shared/GhostText'
 import { PlayButton }   from '@/components/shared/PlayButton'
 import { Rich }         from '@/components/shared/Rich'
+import { NextReleaseInvite } from '@/components/shared/NextReleaseInvite'
 import { LATEST_RELEASE, MOSQUITO_BEACH, SPOTIFY_URIS } from '@/lib/artist-data'
 import { t, type Locale } from '@/lib/i18n'
 
@@ -146,6 +147,11 @@ export function NewRelease({ locale = 'es' }: { locale?: Locale }) {
             </div>
           </ScrollReveal>
         </div>
+
+        {/* ── Próximo sencillo de Mosquito Beach ── */}
+        <ScrollReveal delay={0.12}>
+          <NextReleaseInvite locale={locale} />
+        </ScrollReveal>
       </div>
     </div>
   )

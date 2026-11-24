@@ -18,6 +18,7 @@ export function Navbar() {
   // Mismo orden que las secciones de la página
   const NAV_LINKS = useMemo(() => [
     { id: 'inicio',      label: c.home   },
+    { id: 'contacto',    label: c.contact },
     { id: 'lanzamiento', label: c.latest },
     { id: 'discografia', label: c.music  },
     { id: 'videos',      label: c.videos },
@@ -25,7 +26,6 @@ export function Navbar() {
     { id: 'equo',        label: c.equo   },
     ...(hasEvents ? [{ id: 'fechas', label: c.dates }] : []),
     { id: 'prensa',      label: c.press  },
-    { id: 'contacto',    label: c.contact },
   ].map(l => ({ ...l, href: `${base}#${l.id}` })), [c, base, hasEvents])
 
   const [scrolled, setScrolled] = useState(false)

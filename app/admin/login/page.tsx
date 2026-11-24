@@ -28,7 +28,11 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
           className="email-input"
           style={{ padding: '0.85rem 1rem', background: 'var(--rafa-surface-2)', border: '1px solid var(--rafa-border)', color: 'var(--rafa-text)', fontSize: '1rem', outline: 'none' }}
         />
-        {error && <p role="alert" style={{ fontSize: '0.85rem', color: '#e06060' }}>Contraseña incorrecta.</p>}
+        {error && (
+          <p role="alert" style={{ fontSize: '0.85rem', color: '#e06060' }}>
+            {error === 'locked' ? 'Demasiados intentos. Espera 15 minutos e inténtalo de nuevo.' : 'Contraseña incorrecta.'}
+          </p>
+        )}
         <button type="submit" className="btn-play justify-center">Entrar</button>
         <p style={{ fontSize: '0.75rem', color: 'var(--rafa-muted)' }}>La sesión dura 30 días en este dispositivo.</p>
       </form>

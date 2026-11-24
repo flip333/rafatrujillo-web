@@ -2,7 +2,7 @@ import { after } from 'next/server'
 import { db } from '@/lib/server/supabase'
 import { isDbConfigured } from '@/lib/server/env'
 import { sendReleaseInvite, syncContact } from '@/lib/server/email'
-import { isUuid, isSameOrigin, json } from '@/lib/server/security'
+import { isUuid, isSameOrigin, json, readJson } from '@/lib/server/security'
 
 /* POST /api/subscribe/confirm — confirma el doble opt-in.
    Es POST (no GET) para que los escáneres de enlaces de los clientes de
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!isSameOrigin(req)) return json({ ok: false, error: 'forbidden' }, 403)
   if (!isDbConfigured())  return json({ ok: false, error: 'not_configured' }, 503)
 
-  const { token } = (await req.json().catch(() => ({}))) as { token?: unknown }
+  const { token } = (await readJson<{ token?: unknown }>(req, 1024)) ?? {}
   if (!isUuid(token)) return json({ ok: false, error: 'invalid_token' }, 400)
 
   const supabase = db()

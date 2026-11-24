@@ -2,7 +2,7 @@ import { after } from 'next/server'
 import { Resend } from 'resend'
 import { db } from '@/lib/server/supabase'
 import { env, isDbConfigured, isEmailConfigured } from '@/lib/server/env'
-import { isValidEmail, cleanText, clientIp, hashIp, isSameOrigin, json } from '@/lib/server/security'
+import { isValidEmail, cleanText, clientIp, hashIp, isSameOrigin, json, readJson } from '@/lib/server/security'
 
 const SUBJECTS = new Set(['booking', 'services', 'press', 'collab', 'other'])
 const SUBJECT_LABEL: Record<string, string> = {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   if (!isSameOrigin(req)) return json({ ok: false, error: 'forbidden' }, 403)
   if (!isDbConfigured())  return json({ ok: false, error: 'not_configured' }, 503)
 
-  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null
+  const body = await readJson(req, 16 * 1024)
   if (!body) return json({ ok: false, error: 'invalid_body' }, 400)
   if (typeof body.website === 'string' && body.website) return json({ ok: true }) // honeypot
 

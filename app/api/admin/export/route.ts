@@ -1,9 +1,11 @@
 import { connection } from 'next/server'
 import { db } from '@/lib/server/supabase'
+import { hasAdminSession } from '@/lib/server/admin-auth'
 
 /* GET /api/admin/export — CSV con los suscriptores confirmados (protegido por proxy.ts). */
 export async function GET() {
   await connection()
+  if (!(await hasAdminSession())) return new Response('No autorizado', { status: 401 })
   const { data, error } = await db()
     .from('subscribers')
     .select('email, name, source, confirmed_at')

@@ -1,6 +1,6 @@
 import { db } from '@/lib/server/supabase'
 import { isDbConfigured } from '@/lib/server/env'
-import { cleanText, isSameOrigin } from '@/lib/server/security'
+import { cleanText, isSameOrigin, readJson } from '@/lib/server/security'
 import { TRACKED_EVENTS } from '@/lib/analytics-events'
 
 const ALLOWED = new Set<string>(TRACKED_EVENTS)
@@ -14,12 +14,8 @@ export async function POST(req: Request) {
   // Las pruebas en local no ensucian las métricas de producción
   if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(new URL(req.url).host)) return noContent
 
-  let body: Record<string, unknown>
-  try {
-    body = JSON.parse(await req.text())
-  } catch {
-    return noContent
-  }
+  const body = await readJson(req, 2 * 1024)
+  if (!body) return noContent
 
   const name = typeof body.name === 'string' ? body.name : ''
   if (!ALLOWED.has(name)) return noContent

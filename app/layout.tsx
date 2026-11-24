@@ -102,7 +102,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="scroll-progress" aria-hidden="true" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+          // "<" escapado: ningún texto de los datos puede cerrar el <script>
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, '\\u003c') }}
         />
         <CustomCursor />
         <EmailPopupModal />

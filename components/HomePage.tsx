@@ -13,8 +13,8 @@ import { ParallaxBand }   from '@/components/shared/ParallaxBand'
 import { SONG_KEYWORDS }  from '@/lib/artist-data'
 import { t, type Locale } from '@/lib/i18n'
 
-/* Recorrido: lo nuevo → la música → los videos → la historia → contacto.
-   (La lista de correo va al final; el pop-up cubre la captación temprana.) */
+/* Recorrido: suscripción → lo nuevo → la música → los videos → la historia.
+   (La lista de correo va justo después del hero: es la acción principal.) */
 export function HomePage({ locale = 'es' }: { locale?: Locale }) {
   const hasEvents = upcomingEvents().length > 0
   const surface: React.CSSProperties = {
@@ -27,6 +27,10 @@ export function HomePage({ locale = 'es' }: { locale?: Locale }) {
     <>
       <div id="inicio">
         <HeroSection locale={locale} />
+      </div>
+
+      <div id="contacto" className="section-anchor">
+        <EmailSignup locale={locale} />
       </div>
 
       <SectionDivider text={SONG_KEYWORDS} />
@@ -74,10 +78,6 @@ export function HomePage({ locale = 'es' }: { locale?: Locale }) {
       <section id="preguntas" className="section-anchor py-24 px-6" style={{ borderTop: '1px solid var(--rafa-border)' }}>
         <FaqSection locale={locale} />
       </section>
-
-      <div id="contacto" className="section-anchor">
-        <EmailSignup locale={locale} />
-      </div>
     </>
   )
 }

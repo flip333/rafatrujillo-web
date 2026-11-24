@@ -1,6 +1,7 @@
 import { db } from '@/lib/server/supabase'
 import { env, isDbConfigured } from '@/lib/server/env'
 import { json } from '@/lib/server/security'
+import { safeEqual } from '@/lib/server/admin-auth'
 
 /* GET /api/cron/maintenance — Vercel Cron (ver vercel.json), 1 vez al día.
    1. Borra suscripciones 'pending' sin confirmar tras 14 días (GDPR / limpieza).
@@ -9,7 +10,7 @@ import { json } from '@/lib/server/security'
       sin actividad).
    Vercel envía "Authorization: Bearer $CRON_SECRET" automáticamente. */
 export async function GET(req: Request) {
-  if (!env.cronSecret || req.headers.get('authorization') !== `Bearer ${env.cronSecret}`) {
+  if (!env.cronSecret || !safeEqual(req.headers.get('authorization') ?? '', `Bearer ${env.cronSecret}`)) {
     return json({ ok: false, error: 'unauthorized' }, 401)
   }
   if (!isDbConfigured()) return json({ ok: false, error: 'not_configured' }, 503)

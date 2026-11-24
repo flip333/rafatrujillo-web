@@ -14,6 +14,8 @@ export const TRACKED_EVENTS = [
   'credits_open',
   'outbound_click',      // { platform: 'spotify' | 'apple' | 'youtube' | 'instagram', place }
   'lyrics_share',        // { song } — copió el enlace directo a una letra
+  'song_tab',            // { song, tab: 'story' | 'lyrics' | 'listen' } — pestaña del pop-up de canción
+  'next_release_cta',    // { action: 'subscribe' | 'spotify_follow' } — invitación al próximo sencillo
   'player_autostart',    // { song } — el reproductor arrancó con el primer toque
   'player_play',         // { song } — reproducir desde un botón
   'player_shuffle',      // { song }

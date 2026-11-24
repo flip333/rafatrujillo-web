@@ -2,7 +2,7 @@ import { after } from 'next/server'
 import { db } from '@/lib/server/supabase'
 import { isDbConfigured } from '@/lib/server/env'
 import { syncContact } from '@/lib/server/email'
-import { isUuid, json } from '@/lib/server/security'
+import { isUuid, json, readJson } from '@/lib/server/security'
 
 /* POST /api/unsubscribe
    - Desde la página /suscripcion: JSON { token }
@@ -14,8 +14,8 @@ export async function POST(req: Request) {
   const url = new URL(req.url)
   let token: unknown = url.searchParams.get('token')
   if (!token) {
-    const body = (await req.json().catch(() => ({}))) as { token?: unknown }
-    token = body.token
+    const body = await readJson<{ token?: unknown }>(req, 1024)
+    token = body?.token
   }
   if (!isUuid(token)) return json({ ok: false, error: 'invalid_token' }, 400)
 

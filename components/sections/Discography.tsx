@@ -10,8 +10,9 @@ import { track } from '@/lib/analytics'
 import { t, type Locale } from '@/lib/i18n'
 import {
   ALBUM_DEBUT, EP_01, SINGLES, ALBUM_CREDITS, LATEST_RELEASE, MOSQUITO_BEACH, SPOTIFY_URIS,
-  getLyrics, isInstrumental,
+  getLyrics, getStory, getSpotify, isInstrumental,
 } from '@/lib/artist-data'
+import { SongWave } from '@/components/shared/SongWave'
 
 const LABEL: React.CSSProperties = {
   fontSize: '0.7rem',
@@ -61,6 +62,8 @@ export function Discography({ locale = 'es' }: { locale?: Locale }) {
       title,
       meta,
       body: getLyrics(title),
+      story: getStory(title),
+      spotify: getSpotify(title),
       variant: 'lyrics',
       instrumental: isInstrumental(title),
       shareUrl: `${location.origin}${location.pathname}#letra-${slug}`,
@@ -181,7 +184,8 @@ export function Discography({ locale = 'es' }: { locale?: Locale }) {
                     textAlign: 'left',
                   }}
                 >
-                  <p style={{ fontSize: '0.8rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)', fontWeight: 500, lineHeight: 1.3 }}>
+                  <SongWave title={s.title} bars={9} />
+                  <p style={{ fontSize: '0.8rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)', fontWeight: 500, lineHeight: 1.3, marginTop: '0.5rem' }}>
                     {s.title} <span style={{ color: 'var(--rafa-muted)', fontWeight: 400 }}>· {s.year}</span>
                   </p>
                   <p
@@ -299,7 +303,8 @@ function TrackButton({ index, title, onClick, labels }: {
       >
         {String(index).padStart(2, '0')}
       </span>
-      <span style={{ flex: 1, fontSize: '0.9rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)' }}>{title}</span>
+      <SongWave title={title} />
+      <span className="track-title" style={{ flex: 1, fontSize: '0.9rem', color: 'var(--rafa-text)', fontFamily: 'var(--font-inter)' }}>{title}</span>
       <span
         className="lyrics-hint text-[0.66rem] tracking-widest uppercase"
         style={{ color: 'var(--rafa-accent)', fontFamily: 'var(--font-inter)', flexShrink: 0 }}

@@ -2,7 +2,7 @@ import { db } from '@/lib/server/supabase'
 import { isDbConfigured } from '@/lib/server/env'
 import { sendConfirmation } from '@/lib/server/email'
 import {
-  isValidEmail, cleanText, clientIp, hashIp, isSameOrigin, json,
+  isValidEmail, cleanText, clientIp, hashIp, isSameOrigin, json, readJson,
 } from '@/lib/server/security'
 
 const MAX_PER_IP_PER_HOUR = 5
@@ -14,12 +14,8 @@ export async function POST(req: Request) {
   if (!isSameOrigin(req)) return json({ ok: false, error: 'forbidden' }, 403)
   if (!isDbConfigured())  return json({ ok: false, error: 'not_configured' }, 503)
 
-  let body: Record<string, unknown>
-  try {
-    body = await req.json()
-  } catch {
-    return json({ ok: false, error: 'invalid_body' }, 400)
-  }
+  const body = await readJson(req, 4 * 1024)
+  if (!body) return json({ ok: false, error: 'invalid_body' }, 400)
 
   // Honeypot: campo oculto que solo rellenan los bots
   if (typeof body.website === 'string' && body.website.length > 0) {

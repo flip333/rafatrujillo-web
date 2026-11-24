@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { connection } from 'next/server'
+import { redirect } from 'next/navigation'
+import { hasAdminSession } from '@/lib/server/admin-auth'
 import { isDbConfigured } from '@/lib/server/env'
 import { getMetrics, type Range, type Metrics } from '@/lib/server/metrics'
 import { LogoutButton } from './LogoutButton'
@@ -24,6 +26,7 @@ const n = (v: number) => new Intl.NumberFormat('es-CO').format(v)
 /* Panel de métricas para Rafa (protegido por proxy.ts → /admin/login). */
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ d?: string }> }) {
   await connection()
+  if (!(await hasAdminSession())) redirect('/admin/login')
   const { d } = await searchParams
   const range = ([7, 30, 90, 0].includes(Number(d)) ? Number(d) : 30) as Range
 

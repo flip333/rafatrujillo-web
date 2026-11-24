@@ -131,7 +131,7 @@ export function SubscribeForm({ source, onSuccess, secondary, autoFocus, locale 
               onChange={e => setConsent(e.target.checked)}
               required
               disabled={status === 'loading'}
-              style={{ marginTop: '0.2rem', accentColor: 'var(--rafa-accent)' }}
+              style={{ marginTop: '0.1rem', width: 20, height: 20, flexShrink: 0, accentColor: 'var(--rafa-accent)' }}
             />
             <span>
               {c.consent}{' '}

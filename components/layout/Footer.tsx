@@ -52,13 +52,13 @@ export function Footer() {
   }
 
   const nav = [
+    { label: c.nav.contact, id: 'contacto'    },
     { label: c.nav.latest,  id: 'lanzamiento' },
     { label: c.nav.music,   id: 'discografia' },
     { label: c.nav.videos,  id: 'videos'      },
     { label: c.nav.about,   id: 'sobre'       },
     { label: c.nav.equo,    id: 'equo'        },
     { label: locale === 'en' ? 'FAQ' : 'Preguntas', id: 'preguntas' },
-    { label: c.nav.contact, id: 'contacto'    },
   ]
   const streaming = [
     { label: 'Spotify ↗',     href: ARTIST.urls.spotify    },

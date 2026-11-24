@@ -7,13 +7,17 @@ import { track } from '@/lib/analytics'
 import { t, localeFromPath } from '@/lib/i18n'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
-const DISMISSED_KEY   = 'rafa-popup-dismissed'
-const DISMISS_DAYS    = 30
-const SCROLL_TRIGGER  = 0.45   // fracción de la página recorrida
-const TRIGGER_SECTION = 'discografia'
+const DISMISSED_KEY = 'rafa-popup-dismissed'
+const DISMISS_DAYS  = 7
+const ENTRY_DELAY   = 3500   // ms después de entrar a la página
+const RETRY_DELAY   = 2500   // si hay otro diálogo abierto, reintenta
+// Páginas donde el pop-up estorbaría (flujos propios o legales)
+const SKIP_PATHS = ['/admin', '/suscripcion', '/privacidad', '/en/privacy']
 
 function shouldShow(): boolean {
   try {
+    // ?popup=1 lo fuerza (útil para probarlo aunque ya se haya cerrado)
+    if (new URLSearchParams(location.search).get('popup') === '1') return true
     if (localStorage.getItem(SUBSCRIBED_KEY)) return false
     const dismissed = Number(localStorage.getItem(DISMISSED_KEY) || 0)
     return Date.now() - dismissed > DISMISS_DAYS * 24 * 60 * 60 * 1000
@@ -22,8 +26,10 @@ function shouldShow(): boolean {
   }
 }
 
-/* Pop-up de suscripción: aparece después de que la persona hace scroll
-   (no al cargar), una sola vez; si lo cierra no vuelve en 30 días. */
+/* Pop-up de suscripción: aparece a los pocos segundos de entrar a la página,
+   una sola vez por visita; si lo cierra no vuelve en 7 días y si se suscribe,
+   nunca más. Si en ese momento hay otro diálogo abierto (letras, menú, video),
+   espera a que se cierre. */
 export function EmailPopupModal() {
   const pathname = usePathname()
   const locale = localeFromPath(pathname)
@@ -34,38 +40,24 @@ export function EmailPopupModal() {
   useFocusTrap(panel, visible)
 
   useEffect(() => {
-    if (!shouldShow() || !document.getElementById(TRIGGER_SECTION)) return
-    let done = false
-    const section = document.getElementById(TRIGGER_SECTION)
+    if (SKIP_PATHS.some(p => pathname?.startsWith(p))) return
+    if (!shouldShow()) return
+    let timer: ReturnType<typeof setTimeout>
 
     const open = () => {
-      if (done) return
-      done = true
-      cleanup()
-      // No interrumpir si hay otro diálogo abierto (p. ej. letras)
-      if (document.querySelector('[role="dialog"]:not([aria-hidden="true"])')) return
+      // No interrumpir si hay otro diálogo abierto (p. ej. letras o el menú)
+      if (document.querySelector('[role="dialog"]:not([aria-hidden="true"])')) {
+        timer = setTimeout(open, RETRY_DELAY)
+        return
+      }
       lastFocus.current = document.activeElement as HTMLElement
       setVisible(true)
       track('subscribe_view', { source: 'popup' })
     }
 
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight
-      if (max > 0 && window.scrollY / max >= SCROLL_TRIGGER) open()
-    }
-
-    const io = section
-      ? new IntersectionObserver(([e]) => e.isIntersecting && open(), { threshold: 0.15 })
-      : null
-    if (section && io) io.observe(section)
-    window.addEventListener('scroll', onScroll, { passive: true })
-
-    function cleanup() {
-      window.removeEventListener('scroll', onScroll)
-      io?.disconnect()
-    }
-    return cleanup
-  }, [])
+    timer = setTimeout(open, ENTRY_DELAY)
+    return () => clearTimeout(timer)
+  }, [pathname])
 
   const close = useCallback((reason: 'dismiss' | 'success' = 'dismiss') => {
     setVisible(false)
@@ -146,8 +138,8 @@ export function EmailPopupModal() {
                 className="popup-close"
                 style={{
                   position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
+                  top: '0.35rem',
+                  right: '0.35rem',
                   background: 'none',
                   border: 'none',
                   color: 'var(--rafa-muted)',
@@ -155,7 +147,7 @@ export function EmailPopupModal() {
                   fontSize: '1rem',
                   lineHeight: 1,
                   cursor: 'pointer',
-                  padding: '0.25rem 0.5rem',
+                  padding: '0.75rem 0.9rem',   // área táctil ≥ 44 px
                   transition: 'color 150ms ease',
                 }}
               >
@@ -217,7 +209,7 @@ export function EmailPopupModal() {
                       fontSize: '0.75rem',
                       cursor: 'pointer',
                       textDecoration: 'underline',
-                      padding: 0,
+                      padding: '0.75rem 0.5rem',
                     }}
                   >
                     {c.no}
