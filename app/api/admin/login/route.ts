@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import {
-  ADMIN_COOKIE, ADMIN_MAX_AGE, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_MS, adminToken, safeEqual,
+  ADMIN_COOKIE, ADMIN_MAX_FAILS, ADMIN_FAIL_WINDOW_MS, adminCookieOptions, adminToken, safeEqual,
 } from '@/lib/server/admin-auth'
 import { clientIp, hashIp, isSameOrigin } from '@/lib/server/security'
 import { db } from '@/lib/server/supabase'
@@ -8,7 +8,8 @@ import { isDbConfigured } from '@/lib/server/env'
 
 const FAIL_EVENT = 'admin_login_fail'
 
-/* POST /api/admin/login — valida la contraseña del panel y abre sesión (30 días).
+/* POST /api/admin/login — valida la contraseña del panel y abre sesión
+   (1 año en este dispositivo, renovándose con el uso).
    Fuerza bruta: retraso fijo + bloqueo de 15 min tras 8 fallos desde la misma IP
    (contados en Supabase, así funciona aunque cada petición caiga en otra instancia). */
 export async function POST(req: Request) {
@@ -39,13 +40,7 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.redirect(new URL('/admin', req.url), 303)
-  res.cookies.set(ADMIN_COOKIE, adminToken(), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/',
-    maxAge: ADMIN_MAX_AGE,
-  })
+  res.cookies.set(ADMIN_COOKIE, adminToken(), adminCookieOptions())
   return res
 }
 

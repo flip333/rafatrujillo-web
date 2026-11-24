@@ -44,7 +44,10 @@ export function AnalyticsTracker() {
           }
         }
       },
-      { threshold: 0.3 },
+      // Cuenta la sección cuando cruza la franja central de la pantalla.
+      // (Con threshold 0.3, secciones más altas que ~3 pantallas —discografía,
+      // videoclips— casi nunca llegaban al 30 % visible y se subcontaban.)
+      { rootMargin: '-40% 0px -40% 0px', threshold: 0 },
     )
     SECTIONS.forEach(id => {
       const el = document.getElementById(id)

@@ -34,7 +34,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
           </p>
         )}
         <button type="submit" className="btn-play justify-center">Entrar</button>
-        <p style={{ fontSize: '0.75rem', color: 'var(--rafa-muted)' }}>La sesión dura 30 días en este dispositivo.</p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--rafa-muted)' }}>La sesión queda abierta en este dispositivo durante 1 año y se renueva sola cada vez que usas el panel. Para cerrarla, usa “Salir”.</p>
       </form>
     </section>
   )

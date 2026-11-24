@@ -45,3 +45,8 @@ next-env.d.ts
 .vercel
 
 !.env.example
+
+# Microservicios (Cloudflare Worker)
+services/**/node_modules
+services/**/.wrangler
+services/**/.dev.vars

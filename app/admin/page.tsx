@@ -6,9 +6,14 @@ import { hasAdminSession } from '@/lib/server/admin-auth'
 import { isDbConfigured } from '@/lib/server/env'
 import { getMetrics, type Range, type Metrics } from '@/lib/server/metrics'
 import { LogoutButton } from './LogoutButton'
+import { PautaTab } from './PautaTab'
+import { AssistantTab } from './AssistantTab'
+import { CalendarTab } from './CalendarTab'
+import { LiveRefresh } from './LiveRefresh'
+import { NEXT_RELEASE } from '@/lib/artist-data'
 
 export const metadata: Metadata = {
-  title: 'Métricas — rafatrujillo',
+  title: 'Panel — rafatrujillo',
   robots: { index: false, follow: false },
 }
 
@@ -23,21 +28,41 @@ const fmtDate = (iso: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric
   new Intl.DateTimeFormat('es-CO', { timeZone: 'America/Bogota', ...opts }).format(new Date(iso))
 const n = (v: number) => new Intl.NumberFormat('es-CO').format(v)
 
-/* Panel de métricas para Rafa (protegido por proxy.ts → /admin/login). */
-export default async function AdminPage({ searchParams }: { searchParams: Promise<{ d?: string }> }) {
+type Tab = 'metricas' | 'calendario' | 'pauta' | 'asistente'
+const TABS: { v: Tab; label: string; title: string }[] = [
+  { v: 'metricas',  label: 'Métricas',          title: 'Métricas' },
+  { v: 'calendario', label: 'Calendario',       title: 'Calendario' },
+  { v: 'pauta',     label: 'Pauta (SEM)',       title: 'Pauta' },
+  { v: 'asistente', label: 'Asistente SEO · GEO', title: 'Asistente' },
+]
+
+/* Dashboard del proyecto (protegido por proxy.ts → /admin/login):
+   Métricas del sitio · Pauta (Google Ads + Meta Ads) · Asistente SEO·GEO. */
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ d?: string; tab?: string; dias?: string; refresh?: string }> }) {
   await connection()
   if (!(await hasAdminSession())) redirect('/admin/login')
-  const { d } = await searchParams
+  const { d, tab: rawTab, dias, refresh } = await searchParams
   const range = ([7, 30, 90, 0].includes(Number(d)) ? Number(d) : 30) as Range
+  const tab: Tab = TABS.some(t => t.v === rawTab) ? (rawTab as Tab) : 'metricas'
 
-  if (!isDbConfigured()) return <Shell range={range}><p>La base de datos no está configurada.</p></Shell>
+  if (tab === 'pauta') {
+    return <Shell range={range} tab={tab}><PautaTab days={dias === '7' ? 7 : 30} refresh={refresh === '1'} /></Shell>
+  }
+  if (tab === 'calendario') {
+    return <Shell range={range} tab={tab}><CalendarTab nextRelease={NEXT_RELEASE ? { title: NEXT_RELEASE.title, releaseDate: NEXT_RELEASE.releaseDate } : null} /></Shell>
+  }
+  if (tab === 'asistente') {
+    return <Shell range={range} tab={tab}><AssistantTab /></Shell>
+  }
+
+  if (!isDbConfigured()) return <Shell range={range} tab={tab}><p>La base de datos no está configurada.</p></Shell>
   const m = await getMetrics(range)
   const delta = m.kpis.visitorsPrev == null ? null
     : m.kpis.visitorsPrev === 0 ? null
     : Math.round(((m.kpis.visitors - m.kpis.visitorsPrev) / m.kpis.visitorsPrev) * 100)
 
   return (
-    <Shell range={range} generatedAt={m.generatedAt} fromIso={m.fromIso}>
+    <Shell range={range} tab={tab} generatedAt={m.generatedAt} fromIso={m.fromIso} liveNow={m.liveNow} lastEventAt={m.lastEventAt}>
       {/* ── Números clave ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Kpi label="Visitantes" value={n(m.kpis.visitors)} hint={delta == null ? 'sesiones únicas' : `${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)} % vs. periodo anterior`} tone={delta == null ? undefined : delta >= 0 ? 'up' : 'down'} />
@@ -155,20 +180,24 @@ const SUBJECTS: Record<string, string> = {
 const H3: React.CSSProperties = { fontSize: '0.7rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rafa-muted)', marginBottom: '0.6rem' }
 const NOTE: React.CSSProperties = { fontSize: '0.78rem', lineHeight: 1.6, color: 'var(--rafa-muted)' }
 
-function Shell({ children, range, generatedAt, fromIso }: { children: React.ReactNode; range: Range; generatedAt?: string; fromIso?: string }) {
+function Shell({ children, range, tab, generatedAt, fromIso, liveNow, lastEventAt }: { children: React.ReactNode; range: Range; tab: Tab; generatedAt?: string; fromIso?: string; liveNow?: number; lastEventAt?: string | null }) {
   return (
     <section className="px-4 sm:px-6" style={{ paddingTop: '2rem', paddingBottom: '4rem', fontFamily: 'var(--font-inter)' }}>
       <div className="flex flex-col gap-4" style={{ maxWidth: 1180, margin: '0 auto' }}>
         <header className="flex flex-wrap items-end justify-between gap-4 mb-2">
           <div>
             <Link href="/" style={{ fontFamily: 'var(--font-type)', fontWeight: 700, color: 'var(--rafa-muted)', fontSize: '0.95rem' }}>rafatrujillo</Link>
-            <h1 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2.4rem, 7vw, 3.4rem)', lineHeight: 1, color: 'var(--rafa-text)' }}>Métricas</h1>
-            {generatedAt && fromIso && (
-              <p style={NOTE}>Desde el {fmtDate(fromIso, { day: 'numeric', month: 'long' })} · actualizado {fmtDate(generatedAt, { hour: '2-digit', minute: '2-digit' })}</p>
+            <h1 style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(2.4rem, 7vw, 3.4rem)', lineHeight: 1, color: 'var(--rafa-text)' }}>{TABS.find(t => t.v === tab)?.title}</h1>
+            {tab === 'metricas' && generatedAt && fromIso && (
+              <p style={NOTE}>
+                Desde el {fmtDate(fromIso, { day: 'numeric', month: 'long' })}
+                {' · '}<strong style={{ color: liveNow ? '#7fbf8e' : 'var(--rafa-muted)', fontWeight: 500 }}>{liveNow ?? 0} {liveNow === 1 ? 'persona' : 'personas'} en la web ahora</strong>
+                {lastEventAt && <> · última actividad {fmtDate(lastEventAt, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</>}
+              </p>
             )}
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <nav aria-label="Periodo" className="flex" style={{ border: '1px solid var(--rafa-border)' }}>
+            {tab === 'metricas' && <nav aria-label="Periodo" className="flex" style={{ border: '1px solid var(--rafa-border)' }}>
               {RANGES.map(r => (
                 <Link
                   key={r.v}
@@ -184,10 +213,28 @@ function Shell({ children, range, generatedAt, fromIso }: { children: React.Reac
                   {r.label}
                 </Link>
               ))}
-            </nav>
+            </nav>}
+            {tab === 'metricas' && <LiveRefresh seconds={30} generatedAt={generatedAt} />}
             <LogoutButton />
           </div>
         </header>
+        <nav aria-label="Secciones del panel" className="flex" style={{ borderBottom: '1px solid var(--rafa-border)', marginBottom: '0.5rem', overflowX: 'auto', overflowY: 'hidden', scrollbarWidth: 'none' }}>
+          {TABS.map(t => (
+            <Link
+              key={t.v}
+              href={t.v === 'metricas' ? `/admin?d=${range}` : `/admin?tab=${t.v}`}
+              aria-current={t.v === tab ? 'page' : undefined}
+              className="px-4 py-3"
+              style={{
+                fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap',
+                color: t.v === tab ? 'var(--rafa-accent)' : 'var(--rafa-muted)',
+                borderBottom: `2px solid ${t.v === tab ? 'var(--rafa-accent)' : 'transparent'}`,
+              }}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </nav>
         {children}
       </div>
     </section>

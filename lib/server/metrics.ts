@@ -65,33 +65,51 @@ function topCounts(values: string[], n = 8): [string, number][] {
   return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n)
 }
 
+/* PostgREST devuelve como máximo 1000 filas por petición (max_rows): se pagina
+   para que los totales no se congelen cuando el sitio pase de ese volumen. */
+const PAGE = 1000
+const MAX_ROWS = 200_000
+type Paged<T> = { range: (a: number, b: number) => PromiseLike<{ data: T[] | null; error: unknown }> }
+async function fetchAll<T>(build: () => Paged<T>): Promise<T[]> {
+  const out: T[] = []
+  for (let from = 0; from < MAX_ROWS; from += PAGE) {
+    const { data, error } = await build().range(from, from + PAGE - 1)
+    if (error) throw error
+    out.push(...(data ?? []))
+    if (!data || data.length < PAGE) break
+  }
+  return out
+}
+
 export async function getMetrics(range: Range) {
   const supabase = db()
   const now = Date.now()
   const fromIso = range === 0 ? LAUNCH : new Date(Math.max(now - range * 86_400_000, Date.parse(LAUNCH))).toISOString()
   const prevFromIso = range === 0 ? LAUNCH : new Date(Date.parse(fromIso) - range * 86_400_000).toISOString()
 
-  const [evRes, prevRes, subRes, msgRes] = await Promise.all([
-    supabase.from('events').select('name, props, path, referrer, session_id, country, device, created_at')
-      .gte('created_at', fromIso).order('created_at', { ascending: true }).limit(50000),
+  const liveFromIso = new Date(now - 5 * 60_000).toISOString()
+  const [events, prevEvents, subsRaw, msgRes] = await Promise.all([
+    fetchAll<Ev>(() => supabase.from('events').select('name, props, path, referrer, session_id, country, device, created_at')
+      .gte('created_at', fromIso).order('created_at', { ascending: true }).order('id', { ascending: true }) as unknown as Paged<Ev>),
     range === 0
-      ? Promise.resolve({ data: [] as Ev[] })
-      : supabase.from('events').select('name, session_id, created_at').gte('created_at', prevFromIso).lt('created_at', fromIso)
-          .gte('created_at', LAUNCH).in('name', ['page_view']).limit(50000),
-    supabase.from('subscribers').select('email, name, status, source, created_at, confirmed_at, unsubscribed_at')
-      .order('created_at', { ascending: false }),
+      ? Promise.resolve([] as Ev[])
+      : fetchAll<Ev>(() => supabase.from('events').select('name, session_id, created_at').gte('created_at', prevFromIso).lt('created_at', fromIso)
+          .gte('created_at', LAUNCH).eq('name', 'page_view').order('created_at', { ascending: true }).order('id', { ascending: true }) as unknown as Paged<Ev>),
+    fetchAll<Sub>(() => supabase.from('subscribers').select('email, name, status, source, created_at, confirmed_at, unsubscribed_at')
+      .order('created_at', { ascending: false }).order('email', { ascending: true }) as unknown as Paged<Sub>),
     supabase.from('contact_messages').select('name, email, subject, message, created_at, emailed_at')
       .order('created_at', { ascending: false }).limit(10),
   ])
 
-  const events = (evRes.data ?? []) as Ev[]
-  const subsAll = ((subRes.data ?? []) as Sub[]).filter(s => !isTestEmail(s.email, s.source))
+  const subsAll = subsRaw.filter(s => !isTestEmail(s.email, s.source))
+  // "Ahora en la web": sesiones con actividad en los últimos 5 minutos
+  const liveNow = new Set(events.filter(e => e.created_at >= liveFromIso && e.session_id).map(e => e.session_id)).size
   const by = (name: string) => events.filter(e => e.name === name)
 
   // ── Audiencia ──
   const pageViews = by('page_view')
   const sessions = new Set(pageViews.map(e => e.session_id).filter(Boolean))
-  const prevSessions = new Set(((prevRes.data ?? []) as Ev[]).map(e => e.session_id).filter(Boolean)).size
+  const prevSessions = new Set(prevEvents.map(e => e.session_id).filter(Boolean)).size
 
   // ── Suscriptores ──
   const inRange = (iso: string | null) => !!iso && iso >= fromIso
@@ -106,11 +124,16 @@ export async function getMetrics(range: Range) {
   const start = new Date(dayKey(fromIso) + 'T12:00:00Z')
   const end = new Date(dayKey(new Date(now).toISOString()) + 'T12:00:00Z')
   for (let d = start; d <= end; d = new Date(d.getTime() + 86_400_000)) days.push(d.toISOString().slice(0, 10))
+  // Cada sesión cuenta en el día de su primera visita (así la suma diaria = total de visitantes)
   const sessByDay = new Map<string, Set<string>>()
+  const counted = new Set<string>()
   for (const e of pageViews) {
+    const sid = e.session_id ?? e.created_at
+    if (counted.has(sid)) continue
+    counted.add(sid)
     const k = dayKey(e.created_at)
     if (!sessByDay.has(k)) sessByDay.set(k, new Set())
-    sessByDay.get(k)!.add(e.session_id ?? e.created_at)
+    sessByDay.get(k)!.add(sid)
   }
   const subsByDay = new Map<string, number>()
   for (const s of subsAll) if (inRange(s.confirmed_at)) {
@@ -130,7 +153,7 @@ export async function getMetrics(range: Range) {
   // ── Alcance por sección (% de sesiones que la vieron) ──
   const sectionLabels: Record<string, string> = {
     lanzamiento: 'Nuevo lanzamiento', discografia: 'Discografía', videos: 'Videoclips', sobre: 'El artista',
-    equo: 'Equo', prensa: 'Booking', preguntas: 'Preguntas', contacto: 'Lista de correo',
+    equo: 'Equo', fechas: 'Fechas', prensa: 'Booking', preguntas: 'Preguntas', contacto: 'Lista de correo',
   }
   const sectionReach = Object.entries(sectionLabels).map(([id, label]) => {
     const s = new Set(by('section_view').filter(e => e.props?.section === id).map(e => e.session_id))
@@ -148,6 +171,8 @@ export async function getMetrics(range: Range) {
     range,
     fromIso,
     generatedAt: new Date().toISOString(),
+    liveNow,
+    lastEventAt: events.at(-1)?.created_at ?? null,
     kpis: {
       visitors: sessions.size,
       visitorsPrev: range === 0 ? null : prevSessions,

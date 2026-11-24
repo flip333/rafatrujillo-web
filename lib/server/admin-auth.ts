@@ -2,10 +2,27 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 
 /* Sesión del panel /admin: cookie httpOnly "<expira>.<firma>".
    La firma es un HMAC con ADMIN_PASSWORD de la fecha de expiración, así que:
-   - la sesión caduca sola (30 días) aunque alguien copie la cookie;
-   - cambiar la contraseña invalida todas las sesiones abiertas. */
+   - "recordar este dispositivo": dura 1 año y se renueva sola (proxy.ts)
+     cada día que se usa el panel; si no se usa en un año, caduca;
+   - cambiar la contraseña invalida todas las sesiones abiertas;
+   - "Salir" la borra en ese navegador. */
 export const ADMIN_COOKIE = 'rafa_admin'
-export const ADMIN_MAX_AGE = 60 * 60 * 24 * 30 // 30 días
+export const ADMIN_MAX_AGE = 60 * 60 * 24 * 365 // 1 año
+const RENEW_AFTER = 60 * 60 * 24               // se renueva como máximo 1 vez al día
+
+export const adminCookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  path: '/',
+  maxAge: ADMIN_MAX_AGE,
+})
+
+/* ¿Toca renovar? (la cookie es válida y se emitió hace más de un día) */
+export function shouldRenewAdmin(value: string | undefined): boolean {
+  const exp = Number(value?.split('.')[0])
+  return Number.isInteger(exp) && exp - Date.now() / 1000 < ADMIN_MAX_AGE - RENEW_AFTER
+}
 
 // Bloqueo por fuerza bruta: tras N fallos desde la misma IP en la ventana
 export const ADMIN_MAX_FAILS = 8

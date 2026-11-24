@@ -1,0 +1,24 @@
+{
+  // Microservicios del panel /admin de rafatrujillo.xyz (asistente SEO·GEO + pauta).
+  // Solo responde a peticiones firmadas con SERVICE_TOKEN (las hace el servidor
+  // de la web, nunca el navegador). Secretos: `wrangler secret put <NOMBRE>`.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rafa-admin-services",
+  "main": "src/index.ts",
+  "account_id": "33d9bec03e9d4beb3a4344183942dc2a",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "rafa-admin", "database_id": "3549e574-fc24-4636-8b54-f4905a8f90bd" }
+  ],
+  // Refresca la caché de pauta cada 6 horas (Google Ads / Meta Ads)
+  "triggers": { "crons": ["0 */6 * * *"] },
+  "vars": {
+    "ANTHROPIC_MODEL": "claude-opus-5-5",
+    "GOOGLE_ADS_API_VERSION": "v26",
+    "META_API_VERSION": "v26.0"
+  }
+}
