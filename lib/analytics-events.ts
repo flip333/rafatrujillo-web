@@ -25,6 +25,8 @@ export const TRACKED_EVENTS = [
   'press_photo_download',// { photo }
   'lang_switch',         // { to }
   'cursor_toggle',       // { mode }
+  'post_share',          // { post, via: 'copy' | 'whatsapp' | 'x' | 'native' }
+  'post_read',           // { post } — llegó al final de una entrada del blog
 ] as const
 
 export type TrackedEvent = (typeof TRACKED_EVENTS)[number]

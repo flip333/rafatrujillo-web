@@ -9,7 +9,7 @@ const es = {
     description: 'rafatrujillo — artista, compositor, productor y multiinstrumentista colombiano. Nuevo sencillo “Borracho y Loco” (rafatrujillo x Equo), primer adelanto de Mosquito Beach, su segundo álbum.',
   },
   nav: {
-    home: 'Inicio', latest: 'Nuevo', music: 'Música', videos: 'Videos', about: 'Sobre',
+    home: 'Inicio', latest: 'Nuevo', music: 'Música', videos: 'Videos', blog: 'Blog', about: 'Sobre',
     equo: 'Equo', dates: 'Fechas', press: 'Booking', contact: 'Suscríbete',
     openMenu: 'Abrir menú', closeMenu: 'Cerrar menú', menu: 'Menú', main: 'Principal',
     newTab: '(abre en una pestaña nueva)', toTop: 'Volver arriba', switchLang: 'English', switchHref: '/en',
@@ -137,7 +137,7 @@ const en: Dict = {
     description: 'rafatrujillo — Colombian artist, songwriter, producer and multi-instrumentalist. New single “Borracho y Loco” (rafatrujillo x Equo), the first taste of Mosquito Beach, his second album.',
   },
   nav: {
-    home: 'Home', latest: 'New', music: 'Music', videos: 'Videos', about: 'About',
+    home: 'Home', latest: 'New', music: 'Music', videos: 'Videos', blog: 'Blog', about: 'About',
     equo: 'Equo', dates: 'Dates', press: 'Booking', contact: 'Subscribe',
     openMenu: 'Open menu', closeMenu: 'Close menu', menu: 'Menu', main: 'Main',
     newTab: '(opens in a new tab)', toTop: 'Back to top', switchLang: 'Español', switchHref: '/',

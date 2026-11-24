@@ -15,11 +15,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import type * as THREE_NS from 'three'
 import { track } from '@/lib/analytics'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 
-export interface LensVideo { id: string; title: string; label: string }
+/* Un elemento del carrusel: un videoclip (id de YouTube → modal) o, con
+   `image` + `href`, cualquier tarjeta que lleva a otra página (p. ej. el blog). */
+export interface LensVideo { id: string; title: string; label: string; image?: string; href?: string }
 
 interface Labels { hint: string; play: string; more: string; close: string }
 
@@ -33,8 +36,10 @@ const DRIFT_IDLE_S = 1.8
 const DRIFT_PX     = 0.48          // px por frame a 60 Hz
 const MAX_TARGET_PX = 4_200_000    // tope de píxeles del render target con margen
 
-const thumbUrl = (id: string) =>
-  `/_next/image?url=${encodeURIComponent(`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`)}&w=750&q=75`
+const MIN_STRIP    = 7             // con pocas tarjetas se repiten para llenar la tira
+
+const rawImage = (v: LensVideo) => v.image ?? `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg`
+const thumbUrl = (v: LensVideo) => `/_next/image?url=${encodeURIComponent(rawImage(v))}&w=750&q=75`
 
 /* ─── Shader de la lente ─── */
 const VERT = /* glsl */ `
@@ -108,14 +113,16 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
   const [center, setCenter]     = useState(0)
   const [playing, setPlaying]   = useState<LensVideo | null>(null)
   const openRef = useRef<(i: number) => void>(() => {})
+  const router = useRouter()
 
   const open = useCallback((i: number) => {
     const v = videos[i]
     if (!v) return
+    if (v.href) { router.push(v.href); return }
     window.dispatchEvent(new Event('rafa:pause'))   // pausa el reproductor de música
     track('video_play', { video: v.id, title: v.title, source: 'carousel' })
     setPlaying(v)
-  }, [videos])
+  }, [videos, router])
   openRef.current = open
 
   useEffect(() => {
@@ -156,13 +163,15 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
       const textures: THREE_NS.Texture[] = []
       const materials = videos.map(v => {
         const mat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, toneMapped: false })
-        loader.load(thumbUrl(v.id), tex => {
+        loader.load(thumbUrl(v), tex => {
           if (disposed) { tex.dispose(); return }
           tex.colorSpace = THREE.SRGBColorSpace
           tex.anisotropy = 4
-          // recorte "cover": 16:9 → 1.509
-          tex.repeat.set(CARD_ASPECT / THUMB_ASPECT, 1)
-          tex.offset.set((1 - CARD_ASPECT / THUMB_ASPECT) / 2, 0)
+          // recorte "cover" a la proporción de la tarjeta (1.509), sea cual sea la imagen
+          const img = tex.image as { width?: number; height?: number } | undefined
+          const ar = img?.width && img?.height ? img.width / img.height : THUMB_ASPECT
+          if (ar >= CARD_ASPECT) { tex.repeat.set(CARD_ASPECT / ar, 1); tex.offset.set((1 - CARD_ASPECT / ar) / 2, 0) }
+          else { tex.repeat.set(1, ar / CARD_ASPECT); tex.offset.set(0, (1 - ar / CARD_ASPECT) / 2) }
           textures.push(tex)
           mat.map = tex
           mat.color.set(0xffffff)
@@ -170,9 +179,13 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
         })
         return mat
       })
-      // Tres copias de la lista para que el campo con margen siempre esté lleno
+      // Con pocas tarjetas la tira repite la lista (n = posiciones en la tira)
+      const real = videos.length
+      const n = real * Math.max(1, Math.ceil(MIN_STRIP / real))
+      const slots = Array.from({ length: n }, (_, i) => materials[i % real])
+      // Tres copias de la tira para que el campo con margen siempre esté lleno
       const meshes = [-1, 0, 1].flatMap(k =>
-        materials.map((m, i) => {
+        slots.map((m, i) => {
           const mesh = new THREE.Mesh(plane, m)
           mesh.userData = { i, k }
           stripScene.add(mesh)
@@ -212,7 +225,7 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
         H     = Math.round(cardH * (phone ? 1.55 : 1.75))
         wrap.style.height = `${H}px`
         step = cardW + gap
-        L    = step * videos.length
+        L    = step * n
         padX = W * PAD
         padY = H * PAD
 
@@ -307,7 +320,7 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
         lensMat.uniforms.uLens.value = ease((te - 0.9) / 0.7)
 
         // Video centrado → leyenda
-        const ci = ((Math.round(current / step) % videos.length) + videos.length) % videos.length
+        const ci = (((Math.round(current / step) % n) + n) % n) % real
         if (ci !== centerIdx) { centerIdx = ci; setCenter(ci) }
 
         renderer.setRenderTarget(target)
@@ -360,9 +373,9 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
           const r = canvas.getBoundingClientRect()
           const px = e.clientX - r.left - W / 2
           const py = -(e.clientY - r.top - H / 2)
-          for (let i = 0; i < videos.length; i++) {
+          for (let i = 0; i < n; i++) {
             const x = wrapX(i * step - current)
-            if (Math.abs(px - x) <= cardW / 2 && Math.abs(py) <= cardH / 2) { openRef.current(i); break }
+            if (Math.abs(px - x) <= cardW / 2 && Math.abs(py) <= cardH / 2) { openRef.current(i % real); break }
           }
         }
         touch(); kick()
@@ -388,7 +401,7 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
           e.preventDefault(); tgt = 0
         } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          openRef.current(((Math.round(tgt / step) % videos.length) + videos.length) % videos.length)
+          openRef.current((((Math.round(tgt / step) % n) + n) % n) % real)
           return
         } else return
         vel = 0
@@ -480,7 +493,7 @@ export function VideoLensCarousel({ videos, labels }: { videos: LensVideo[]; lab
         <div className="video-lens-fallback" role="list">
           {videos.map((vid, i) => (
             <button key={vid.id} type="button" role="listitem" onClick={() => open(i)} aria-label={`${labels.play} ${vid.title}`}>
-              <Image src={`https://i.ytimg.com/vi/${vid.id}/maxresdefault.jpg`} alt="" fill sizes="(min-width: 640px) 470px, 64vw" className="object-cover" />
+              <Image src={rawImage(vid)} alt="" fill sizes="(min-width: 640px) 470px, 64vw" className="object-cover" />
             </button>
           ))}
         </div>

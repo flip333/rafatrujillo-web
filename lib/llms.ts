@@ -3,6 +3,7 @@ import {
   normalizeTitle, isInstrumental,
 } from './artist-data'
 import { FAQ } from './faq'
+import { sortedPosts, postUrl } from './blog'
 import { DICT } from './i18n'
 
 const SITE = 'https://rafatrujillo.xyz'
@@ -80,6 +81,8 @@ export function buildLlmsTxt(full = false): string {
     '',
     ...FAQ.es.flatMap(f => [`### ${f.q}`, '', f.a, '']),
   )
+
+  push(`## Blog`, '', ...sortedPosts().map(p => `- [${p.title}](${SITE}${postUrl(p)}): ${p.description}`), '')
 
   if (full) {
     push(`## Letras`, '', `Todas las letras son de rafatrujillo (música y letras por rafatrujillo).`, '')

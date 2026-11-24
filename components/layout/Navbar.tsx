@@ -22,6 +22,7 @@ export function Navbar() {
     { id: 'lanzamiento', label: c.latest },
     { id: 'discografia', label: c.music  },
     { id: 'videos',      label: c.videos },
+    { id: 'blog',        label: c.blog   },
     { id: 'sobre',       label: c.about  },
     { id: 'equo',        label: c.equo   },
     ...(hasEvents ? [{ id: 'fechas', label: c.dates }] : []),

@@ -2,6 +2,7 @@ import { HeroSection }    from '@/components/sections/HeroSection'
 import { NewRelease }     from '@/components/sections/NewRelease'
 import { Discography }    from '@/components/sections/Discography'
 import { Videoclips }     from '@/components/sections/Videoclips'
+import { LatestPosts }    from '@/components/sections/LatestPosts'
 import { AboutSection }   from '@/components/sections/AboutSection'
 import { EquoSection }    from '@/components/sections/EquoSection'
 import { EventsSection, upcomingEvents } from '@/components/sections/EventsSection'
@@ -51,6 +52,10 @@ export function HomePage({ locale = 'es' }: { locale?: Locale }) {
 
       <div id="videos" className="section-anchor">
         <Videoclips locale={locale} />
+      </div>
+
+      <div id="blog" className="section-anchor" style={{ borderTop: '1px solid var(--rafa-border)' }}>
+        <LatestPosts locale={locale} />
       </div>
 
       <ParallaxBand src="/fotos/sesion-2025-06.jpg" quote={t(locale).bands.story} cite="rafatrujillo" position="center 35%" />

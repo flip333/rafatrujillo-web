@@ -21,7 +21,7 @@ const INPUT: React.CSSProperties = {
 }
 
 interface Props {
-  source: 'popup' | 'inline'
+  source: 'popup' | 'inline' | 'blog'
   onSuccess?: () => void
   /** Botón secundario (p. ej. "No, gracias" del pop-up) */
   secondary?: React.ReactNode

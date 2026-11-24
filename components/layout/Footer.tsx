@@ -57,6 +57,7 @@ export function Footer() {
     { label: c.nav.latest,  id: 'lanzamiento' },
     { label: c.nav.music,   id: 'discografia' },
     { label: c.nav.videos,  id: 'videos'      },
+    { label: c.nav.blog,    id: 'blog'        },
     { label: c.nav.about,   id: 'sobre'       },
     { label: c.nav.equo,    id: 'equo'        },
     { label: locale === 'en' ? 'FAQ' : 'Preguntas', id: 'preguntas' },
