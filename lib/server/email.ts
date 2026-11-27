@@ -74,13 +74,13 @@ export async function sendReleaseInvite(to: string, name: string | null, unsubTo
     from: env.emailFrom,
     to,
     replyTo: env.emailReplyTo || undefined,
-    subject: `Escucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}`,
+    subject: `Escucha “${LATEST_RELEASE.title}”`,
     scheduledAt: new Date(Date.now() + delayMs).toISOString(),
     headers: unsubscribeHeaders(unsubToken),
     html: layout(`${hi} eres parte de la lista. Gracias por confirmar.<br><br>
 Para empezar, te comparto el último lanzamiento:
 <strong style="color:#f0ece4">“${esc(LATEST_RELEASE.title)}”</strong> — ${esc(LATEST_RELEASE.credit)},
-el primer sencillo de <em>${esc(MOSQUITO_BEACH.title)}</em>, el segundo álbum de rafatrujillo.
+el segundo sencillo de <em>${esc(MOSQUITO_BEACH.title)}</em>, el segundo álbum de rafatrujillo.
 <br><br>
 <img src="${env.siteUrl}${LATEST_RELEASE.cover}" alt="Portada de ${esc(LATEST_RELEASE.title)}" width="520" style="display:block;width:100%;max-width:520px;height:auto;border:0;margin:0 0 22px">
 ${platform(LATEST_RELEASE.spotifyUrl, 'Escuchar en Spotify')}
@@ -94,7 +94,7 @@ que no vas a encontrar en ningún otro lugar.<br><br>
 Si quieres contarme qué te pareció la canción, responde a este correo: lo leo yo.<br><br>
 Nos escuchamos pronto,<br>
 <span style="font-family:'Courier New',monospace;font-weight:bold;color:#f0ece4">rafatrujillo</span>`, unsubToken),
-    text: `${hi} eres parte de la lista. Gracias por confirmar.\n\nEscucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}, primer sencillo de ${MOSQUITO_BEACH.title}:\nSpotify: ${LATEST_RELEASE.spotifyUrl}\nApple Music: ${LATEST_RELEASE.appleMusicUrl}\nYouTube: ${ytUrl}\n\nUna promesa: no vamos a llenar tu correo de spam. Por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo.\n\nSi quieres contarme qué te pareció, responde a este correo.\n\nrafatrujillo\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
+    text: `${hi} eres parte de la lista. Gracias por confirmar.\n\nEscucha “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}, segundo sencillo de ${MOSQUITO_BEACH.title}:\nSpotify: ${LATEST_RELEASE.spotifyUrl}\nApple Music: ${LATEST_RELEASE.appleMusicUrl}\nYouTube: ${ytUrl}\n\nUna promesa: no vamos a llenar tu correo de spam. Por ser parte de la lista vas a participar en dinámicas, giveaways y contenido exclusivo.\n\nSi quieres contarme qué te pareció, responde a este correo.\n\nrafatrujillo\n\nDarte de baja: ${unsubscribeUrl(unsubToken)}`,
     tags: [{ name: 'type', value: 'release_invite' }],
   })
 }

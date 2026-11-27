@@ -70,7 +70,21 @@ export const EQUO = {
 } as const
 
 // ─── Último lanzamiento / nueva etapa ──────────────────────────────
+// Apple Music: mientras no tengamos el enlace directo de la canción,
+// apunta al perfil del artista. Reemplazar cuando esté el link del sencillo.
 export const LATEST_RELEASE = {
+  title:       'Así no es (Parié)',
+  credit:      'rafatrujillo',
+  releaseDate: '2026-11-27',
+  releaseLabel:'27 de noviembre de 2026',
+  cover:       '/fotos/portada-asi-no-es-parie.jpg',
+  spotifyUrl:  'https://open.spotify.com/track/1KT5m5TmEH9ggDm0ykVMJy',
+  appleMusicUrl: 'https://music.apple.com/mx/artist/rafatrujillo/1758386046',
+  youtubeId:   'QywvakGrdEg',
+} as const
+
+// Primer sencillo de Mosquito Beach (lo usan el blog, la discografía y el JSON-LD)
+export const BORRACHO_Y_LOCO = {
   title:       'Borracho y Loco',
   credit:      'rafatrujillo x Equo',
   releaseDate: '2026-09-25',
@@ -86,13 +100,9 @@ export const MOSQUITO_BEACH = {
   year:  2026,
 } as const
 
-// ─── Próximo lanzamiento (invitación en la sección Mosquito Beach) ──
-// Cuando salga: pasar a LATEST_RELEASE / SINGLES y vaciar esto (null).
-export const NEXT_RELEASE: { title: string; releaseDate: string; releaseAt: string } | null = {
-  title:       'Así no es (Parié)',
-  releaseDate: '2026-11-27',
-  releaseAt:   '2026-11-27T00:00:00-05:00',   // medianoche, hora de Colombia
-}
+// ─── Próximo lanzamiento (invitación con cuenta regresiva en la sección Mosquito Beach) ──
+// null = no se muestra. Cuando haya un nuevo sencillo anunciado, llenar aquí.
+export const NEXT_RELEASE: { title: string; releaseDate: string; releaseAt: string } | null = null
 
 export const SINGLES = [
   { title: 'Ya no es mi canción, Pt.1',  year: 2025, cover: 'https://i.scdn.co/image/ab67616d0000b27378e3c7b8a1669833f2af79af' },
@@ -110,6 +120,7 @@ export const SINGLES = [
 // Se arma desde álbum + EP + singles, quitando versiones/instrumentales y duplicados.
 const _SONG_TITLES: string[] = [
   LATEST_RELEASE.title,
+  BORRACHO_Y_LOCO.title,
   ...ALBUM_DEBUT.tracks.map(t => t.title),
   ...EP_01.tracks.map(t => t.title),
   ...SINGLES.map(s => s.title),
@@ -125,6 +136,7 @@ export const SONG_KEYWORDS: string = Array.from(
 // ─── Reproductor global (Spotify iFrame API) ──────────────────────
 // URIs de Spotify. Al abrir la página se elige una canción al azar.
 export const PLAYLIST = [
+  { title: 'Así no es (Parié)',          uri: 'spotify:track:1KT5m5TmEH9ggDm0ykVMJy' },
   { title: 'Borracho y Loco',            uri: 'spotify:album:4nP7yOmEMKuxeePJHO02E2' },
   { title: 'Ya no es mi canción, Pt.1',  uri: 'spotify:album:1dACyXqypaxzlLgoUbThP8' },
   { title: 'Suenan las alarmas',         uri: 'spotify:album:5hMTyQBO360iVUooAwwiII' },
@@ -137,7 +149,7 @@ export const PLAYLIST = [
 ] as const
 
 export const SPOTIFY_URIS = {
-  latest: 'spotify:album:4nP7yOmEMKuxeePJHO02E2',
+  latest: 'spotify:track:1KT5m5TmEH9ggDm0ykVMJy',
   album:  'spotify:album:1naj0GmVEGImqQgMgoLoWE',
   ep:     'spotify:album:78ocnQbrpoth2IDsmPnoae',
 } as const
@@ -154,13 +166,14 @@ export const EVENTS: LiveEvent[] = []
 
 // ─── Prensa / EPK ────────────────────────────────────────────────
 export const PRESS = {
-  shortBio: 'rafatrujillo es un artista, compositor, productor y multiinstrumentista colombiano. Con formación en cine, construye canciones como escenas de una historia mayor. En 2025 lanzó su primer álbum, "Ya no es mi canción, y otras películas", y en 2026 inicia Mosquito Beach, su segundo álbum, con el sencillo "Borracho y Loco" junto a Equo.',
-  shortBioEn: 'rafatrujillo is a Colombian artist, songwriter, producer and multi-instrumentalist. Trained in film, he writes songs as scenes from a larger story. In 2025 he released his first album, "Ya no es mi canción, y otras películas", and in 2026 he begins Mosquito Beach, his second album, with the single "Borracho y Loco" featuring Equo.',
+  shortBio: 'rafatrujillo es un artista, compositor, productor y multiinstrumentista colombiano. Con formación en cine, construye canciones como escenas de una historia mayor. En 2025 lanzó su primer álbum, "Ya no es mi canción, y otras películas", y en 2026 inicia Mosquito Beach, su segundo álbum, con los sencillos "Borracho y Loco" junto a Equo y "Así no es (Parié)".',
+  shortBioEn: 'rafatrujillo is a Colombian artist, songwriter, producer and multi-instrumentalist. Trained in film, he writes songs as scenes from a larger story. In 2025 he released his first album, "Ya no es mi canción, y otras películas", and in 2026 he begins Mosquito Beach, his second album, with the singles "Borracho y Loco" featuring Equo and "Así no es (Parié)".',
 } as const
 
 // Videos oficiales del canal de YouTube (@rafatrujillo.oficial), del más reciente al más antiguo.
 // No incluye Shorts.
 export const YOUTUBE_VIDEOS = [
+  { id: 'QywvakGrdEg', title: 'Así no es (Parié)',                      type: 'official', year: 2026 },
   { id: 'bYalxExKqP0', title: 'Borracho y Loco — rafatrujillo x Equo',  type: 'official', year: 2026 },
   { id: 'AIlwZJciG1o', title: 'ya no es mi canción pt I + pt II',          type: 'official', year: 2025 },
   { id: '-UxhIUjIHNg', title: 'Suenan las alarmas',                        type: 'official', year: 2025 },
@@ -178,6 +191,48 @@ export const YOUTUBE_VIDEOS = [
 // ─── Letras de las canciones ───────────────────────────────────────
 // Clave = título normalizado (minúsculas, sin sufijos de versión).
 export const LYRICS: Record<string, string> = {
+  'así no es (parié)': `Voy camino a la ciudad, falta poco para llegar,
+Y no paro de pensar en cuál esquina voy a encontrar a tu corazón,
+Que va cantando una canción para olvidar.
+
+Caminando la ciudad, y no sé por dónde empezar,
+Yo que vine a buscar encuentros por casualidad,
+Y así no es, la vida nunca va al revés,
+Tal vez el camino nunca llegue hasta tus pies.
+
+Y no te encuentre por casualidad,
+Y yo no quepa ya en tu realidad,
+Y ya no tengas la necesidad,
+Llego a tu puerta y no me invites a pasar,
+Y así por toda la eternidad,
+No conozco a nadie en esta ciudad,
+Qué va a pasar, qué va a pasar,
+Déjame entrar.
+
+Ya conoces la ciudad, ya nunca miras para atrás,
+Ya dejaste de pensar, y no me quieres alcanzar,
+No lo sé, mientras caminas menos te duelen los pies.
+
+Caminando la ciudad, y no sé por dónde empezar,
+Yo que vine a buscar encuentros por casualidad,
+Y así no es, la vida nunca va al revés,
+Tal vez el camino nunca llegue hasta tus pies.
+
+Y no te encuentre por casualidad,
+Y yo no quepa ya en tu realidad,
+Y ya no tengas la necesidad,
+Llego a tu puerta y no me invites a pasar,
+Y así por toda la eternidad,
+No conozco a nadie en esta ciudad,
+Qué va a pasar, qué va a pasar,
+Déjame entrar.
+
+Y despertar sin despertar, cómo lo puedes ignorar,
+Sin darte cuenta de la historia, del momento y del lugar,
+Y así por toda la eternidad, vas de espaldas hacia el mar,
+Qué va a pasar, qué va a pasar,
+Déjame entrar.`,
+
   'borracho y loco': `Aunque digan que soy un borracho
 No soy así,
 Fue dos fiestas después
@@ -724,7 +779,14 @@ const SPOTIFY_ALBUM_IDS: Record<string, string> = {
 export function getStory(title: string): string | null {
   return STORIES[normalizeTitle(title)] ?? null
 }
+// Sencillos publicados como canción (track), no como álbum
+const SPOTIFY_TRACK_IDS: Record<string, string> = {
+  'así no es (parié)': '1KT5m5TmEH9ggDm0ykVMJy',
+}
+
 export function getSpotify(title: string): { url: string; embed: string } {
+  const track = SPOTIFY_TRACK_IDS[normalizeTitle(title)]
+  if (track) return { url: `https://open.spotify.com/track/${track}`, embed: `https://open.spotify.com/embed/track/${track}?theme=0` }
   const id = SPOTIFY_ALBUM_IDS[normalizeTitle(title)]
   if (!id) return { url: ARTIST.urls.spotify, embed: `https://open.spotify.com/embed/artist/${ARTIST.spotifyId}?theme=0` }
   return { url: `https://open.spotify.com/album/${id}`, embed: `https://open.spotify.com/embed/album/${id}?theme=0` }

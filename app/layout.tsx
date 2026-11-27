@@ -46,7 +46,7 @@ const inter = Inter({
 
 const SITE_URL = 'https://rafatrujillo.xyz'
 const DESCRIPTION =
-  'rafatrujillo — artista, compositor, productor y multiinstrumentista colombiano. Nuevo sencillo “Borracho y Loco” (rafatrujillo x Equo), primer adelanto de Mosquito Beach, su segundo álbum.'
+  'rafatrujillo — artista, compositor, productor y multiinstrumentista colombiano. Nuevo sencillo “Así no es (Parié)”, segundo adelanto de Mosquito Beach, su segundo álbum.'
 
 // Barra del navegador móvil en el color del sitio
 export const viewport: Viewport = {
@@ -56,20 +56,20 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'rafatrujillo — cantautor y productor colombiano · “Borracho y Loco”',
+  title: 'rafatrujillo — cantautor y productor colombiano · “Así no es (Parié)”',
   description: DESCRIPTION,
   applicationName: 'rafatrujillo',
   authors: [{ name: 'Rafa Trujillo', url: SITE_URL }],
   creator: 'rafatrujillo',
   category: 'music',
-  keywords: ['rafatrujillo', 'Rafa Trujillo', 'Borracho y Loco', 'Mosquito Beach', 'Equo', 'indie pop-rock colombiano', 'cantautor colombiano', 'Manizales', 'música para cine', 'música para publicidad', 'Ya no es mi canción, y otras películas'],
+  keywords: ['rafatrujillo', 'Rafa Trujillo', 'Así no es (Parié)', 'Parié', 'Borracho y Loco', 'Mosquito Beach', 'Equo', 'indie pop-rock colombiano', 'cantautor colombiano', 'Manizales', 'música para cine', 'música para publicidad', 'Ya no es mi canción, y otras películas'],
   alternates: {
     canonical: '/',
     languages: { es: '/', en: '/en' },
     types: { 'text/markdown': '/llms.txt' },
   },
   openGraph: {
-    title: 'rafatrujillo — “Borracho y Loco” (rafatrujillo x Equo)',
+    title: 'rafatrujillo — “Así no es (Parié)”',
     description: DESCRIPTION,
     url: SITE_URL,
     siteName: 'rafatrujillo',
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'rafatrujillo — “Borracho y Loco” (rafatrujillo x Equo)',
+    title: 'rafatrujillo — “Así no es (Parié)”',
     description: DESCRIPTION,
     images: ['/og.jpg'],
   },

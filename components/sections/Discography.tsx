@@ -9,7 +9,7 @@ import { LyricsModal, type LyricsModalData } from '@/components/shared/LyricsMod
 import { track } from '@/lib/analytics'
 import { t, type Locale } from '@/lib/i18n'
 import {
-  ALBUM_DEBUT, EP_01, SINGLES, ALBUM_CREDITS, LATEST_RELEASE, MOSQUITO_BEACH, SPOTIFY_URIS,
+  ALBUM_DEBUT, EP_01, SINGLES, ALBUM_CREDITS, LATEST_RELEASE, BORRACHO_Y_LOCO, MOSQUITO_BEACH, SPOTIFY_URIS,
   getLyrics, getStory, getSpotify, isInstrumental,
 } from '@/lib/artist-data'
 import { SongWave } from '@/components/shared/SongWave'
@@ -48,6 +48,7 @@ export function Discography({ locale = 'es' }: { locale?: Locale }) {
   const songs = useMemo(() => {
     const m = new Map<string, { title: string; meta: string }>()
     m.set(songSlug(LATEST_RELEASE.title), { title: LATEST_RELEASE.title, meta: `${LATEST_RELEASE.credit} · ${MOSQUITO_BEACH.year}` })
+    m.set(songSlug(BORRACHO_Y_LOCO.title), { title: BORRACHO_Y_LOCO.title, meta: `${BORRACHO_Y_LOCO.credit} · ${MOSQUITO_BEACH.year}` })
     ALBUM_DEBUT.tracks.forEach(tr => m.set(songSlug(tr.title), { title: tr.title, meta: `${c.album} · ${ALBUM_DEBUT.year}` }))
     EP_01.tracks.forEach(tr => m.set(songSlug(tr.title), { title: tr.title, meta: `EP · ${EP_01.year}` }))
     SINGLES.forEach(s => { if (!m.has(songSlug(s.title))) m.set(songSlug(s.title), { title: s.title, meta: `${c.single} · ${s.year}` }) })

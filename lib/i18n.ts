@@ -6,7 +6,7 @@ export type Locale = 'es' | 'en'
 
 const es = {
   meta: {
-    description: 'rafatrujillo — artista, compositor, productor y multiinstrumentista colombiano. Nuevo sencillo “Borracho y Loco” (rafatrujillo x Equo), primer adelanto de Mosquito Beach, su segundo álbum.',
+    description: 'rafatrujillo — artista, compositor, productor y multiinstrumentista colombiano. Nuevo sencillo “Así no es (Parié)”, segundo adelanto de Mosquito Beach, su segundo álbum.',
   },
   nav: {
     home: 'Inicio', latest: 'Nuevo', music: 'Música', videos: 'Videos', blog: 'Blog', about: 'Sobre',
@@ -21,16 +21,16 @@ const es = {
   latest: {
     label: '— Nuevo lanzamiento', ghost: 'NUEVO', badge: 'Ya disponible',
     coverAlt: 'Portada de',
-    firstSingle: 'Primer sencillo de *{mb}*, segundo álbum de rafatrujillo.',
-    body: 'Una canción nacida de años de amistad entre Rafa Trujillo y Sergio Hoyos, que vuelve a las fiestas de juventud en Manizales, las guitarras, la carretera, la complicidad y esos lugares emocionales a los que uno intenta regresar con el paso de los años.',
-    releaseLabel: 'Lanzamiento:', releaseDate: '25 de septiembre de 2026',
+    firstSingle: 'Segundo sencillo de *{mb}*, segundo álbum de rafatrujillo.',
+    body: 'Otra escena del mismo recorrido de Mosquito Beach. Ya disponible en todas las plataformas, con videoclip oficial estrenado hoy.',
+    releaseLabel: 'Lanzamiento:', releaseDate: '27 de noviembre de 2026',
     listen: 'Escuchar ahora', spotify: 'Spotify ↗', video: 'Ver el video oficial', lyrics: 'Leer la letra →',
     mbLabel: '— Segundo álbum', mbSub: 'Segundo álbum de',
     mb: [
       '*{mb}* nace de la necesidad de volver al origen para poder avanzar.',
       'El proyecto explora la adultez, la memoria, las amistades, Bogotá, los home studios, las colaboraciones y el regreso al niño interior como una forma de recuperar la capacidad de escribir, imaginar y volver a volar.',
       'Cada canción representa un momento distinto dentro de un tránsito que comienza en el atardecer y avanza hacia la noche.',
-      '*“{title}”*, junto a Equo, es el primer sencillo oficial de esta nueva etapa.',
+      '*“Borracho y Loco”*, junto a Equo, abrió esta nueva etapa; *“{title}”* es su segundo sencillo.',
     ],
     nextLabel: 'Próximo lanzamiento', nextDate: '27 de noviembre',
     nextText: 'La siguiente canción de *{mb}* llega muy pronto. Mantente pendiente: suscríbete y te aviso el día que salga.',
@@ -134,7 +134,7 @@ type Dict = typeof es
 
 const en: Dict = {
   meta: {
-    description: 'rafatrujillo — Colombian artist, songwriter, producer and multi-instrumentalist. New single “Borracho y Loco” (rafatrujillo x Equo), the first taste of Mosquito Beach, his second album.',
+    description: 'rafatrujillo — Colombian artist, songwriter, producer and multi-instrumentalist. New single “Así no es (Parié)”, the second taste of Mosquito Beach, his second album.',
   },
   nav: {
     home: 'Home', latest: 'New', music: 'Music', videos: 'Videos', blog: 'Blog', about: 'About',
@@ -149,16 +149,16 @@ const en: Dict = {
   latest: {
     label: '— New release', ghost: 'NEW', badge: 'Out now',
     coverAlt: 'Cover of',
-    firstSingle: 'First single from *{mb}*, rafatrujillo’s second album.',
-    body: 'A song born from years of friendship between Rafa Trujillo and Sergio Hoyos, going back to the teenage parties in Manizales, the guitars, the road trips, the complicity, and those emotional places we keep trying to return to as the years go by.',
-    releaseLabel: 'Released:', releaseDate: 'September 25, 2026',
+    firstSingle: 'Second single from *{mb}*, rafatrujillo’s second album.',
+    body: 'Another scene from the same Mosquito Beach journey. Out now on every platform, with an official music video premiering today.',
+    releaseLabel: 'Released:', releaseDate: 'November 27, 2026',
     listen: 'Listen now', spotify: 'Spotify ↗', video: 'Watch the official video', lyrics: 'Read the lyrics (Spanish) →',
     mbLabel: '— Second album', mbSub: 'Second album by',
     mb: [
       '*{mb}* comes from the need to go back to the origin in order to move forward.',
       'The project explores adulthood, memory, friendship, Bogotá, home studios, collaboration and the return to the inner child as a way to recover the ability to write, imagine and fly again.',
       'Each song captures a different moment in a journey that begins at sunset and moves into the night.',
-      '*“{title}”*, with Equo, is the first official single of this new chapter.',
+      '*“Borracho y Loco”*, with Equo, opened this new chapter; *“{title}”* is its second single.',
     ],
     nextLabel: 'Next release', nextDate: 'November 27',
     nextText: 'The next song from *{mb}* is almost here. Stay tuned: subscribe and I’ll let you know the day it drops.',

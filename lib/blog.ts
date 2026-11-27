@@ -1,4 +1,4 @@
-import { LATEST_RELEASE, NEXT_RELEASE, MOSQUITO_BEACH } from './artist-data'
+import { BORRACHO_Y_LOCO, LATEST_RELEASE, MOSQUITO_BEACH } from './artist-data'
 
 /* Blog de rafatrujillo.xyz.
    Cada entrada está escrita con la voz de Rafa a partir de sus propias notas
@@ -42,7 +42,7 @@ export interface Post {
 }
 
 const SPOTIFY_ARTIST = 'https://open.spotify.com/artist/6RgSjDL2gCy477DQ9azqYi'
-const nextTitle = NEXT_RELEASE?.title ?? 'Así no es (Parié)'
+const nextTitle = LATEST_RELEASE.title
 
 export const POSTS: Post[] = [
   // ───────────────────────────── 1 ─────────────────────────────
@@ -84,15 +84,16 @@ export const POSTS: Post[] = [
       { t: 'p', text: 'Ese disco me dejó dos regalos que hoy son la base de *Mosquito Beach*: **la confianza para producir mis propias canciones** y las ganas de **abrir la puerta a otros músicos**. Además, en 2026 el videoclip de «Ya no es mi canción» fue seleccionado para el **Bogotá Music Video Festival**, una señal bonita de que esa forma de contar historias con imágenes también estaba llegando.' },
       { t: 'callout', text: 'Si quieres conocer el camino completo, desde la primera canción que escribí hasta hoy, lee [cómo construí mi proyecto musical independiente](/blog/como-construi-mi-proyecto-musical-independiente-rafa-trujillo).' },
 
-      { t: 'h2', id: 'primer-sencillo-borracho-y-loco', text: `«${LATEST_RELEASE.title}», el primer sencillo` },
-      { t: 'p', text: `El álbum arrancó el ${LATEST_RELEASE.releaseLabel} con **«${LATEST_RELEASE.title}»**, una canción que escribí con Sergio Hoyos y que salió como *${LATEST_RELEASE.credit}*, en homenaje a Equo, el proyecto que tenemos desde el colegio. Es pegajosa, tiene humor y fue la puerta perfecta para esta nueva etapa.` },
+      { t: 'h2', id: 'primer-sencillo-borracho-y-loco', text: `«${BORRACHO_Y_LOCO.title}», el primer sencillo` },
+      { t: 'p', text: `El álbum arrancó el ${BORRACHO_Y_LOCO.releaseLabel} con **«${BORRACHO_Y_LOCO.title}»**, una canción que escribí con Sergio Hoyos y que salió como *${BORRACHO_Y_LOCO.credit}*, en homenaje a Equo, el proyecto que tenemos desde el colegio. Es pegajosa, tiene humor y fue la puerta perfecta para esta nueva etapa.` },
       { t: 'p', text: 'La historia completa de cómo la escribimos y la grabamos entre Bogotá y Manizales está aquí: [la historia detrás de «Borracho y Loco»](/blog/historia-borracho-y-loco-rafatrujillo-equo).' },
-      { t: 'video', id: LATEST_RELEASE.youtubeId, title: `${LATEST_RELEASE.title} — ${LATEST_RELEASE.credit} (video oficial)` },
+      { t: 'video', id: BORRACHO_Y_LOCO.youtubeId, title: `${BORRACHO_Y_LOCO.title} — ${BORRACHO_Y_LOCO.credit} (video oficial)` },
 
-      { t: 'h2', id: 'asi-no-es-parie', text: `Lo que viene: «${nextTitle}»` },
-      { t: 'p', text: `La siguiente canción de *${MOSQUITO_BEACH.title}* se llama **«${nextTitle}»** y sale el **27 de noviembre de 2026** en todas las plataformas.` },
-      { t: 'p', text: 'No te voy a contar mucho todavía: prefiero que la escuches primero y que la historia llegue después, aquí mismo en el blog. Lo que sí te puedo decir es que es otra escena del mismo recorrido, y que tengo muchas ganas de que suene.' },
-      { t: 'subscribe', title: 'Te aviso el día que salga', text: `Suscríbete a la lista de correo y te escribo cuando «${nextTitle}» esté disponible. Sin spam: solo música nueva, historias y fechas.` },
+      { t: 'h2', id: 'asi-no-es-parie', text: `El segundo sencillo: «${nextTitle}»` },
+      { t: 'p', text: `La siguiente canción de *${MOSQUITO_BEACH.title}* se llama **«${nextTitle}»** y salió el **${LATEST_RELEASE.releaseLabel}** en todas las plataformas, con videoclip oficial.` },
+      { t: 'p', text: 'Es otra escena del mismo recorrido. Prefiero que la escuches primero; la historia detrás de la canción llegará pronto, aquí mismo en el blog.' },
+      { t: 'video', id: LATEST_RELEASE.youtubeId, title: `${nextTitle} — ${LATEST_RELEASE.credit} (video oficial)` },
+      { t: 'subscribe', title: 'Entérate primero del próximo sencillo', text: 'Suscríbete a la lista de correo y te escribo cuando salga la siguiente canción de *Mosquito Beach*. Sin spam: solo música nueva, historias y fechas.' },
 
       { t: 'h2', id: 'como-seguir-el-album', text: 'Cómo seguir el álbum canción por canción' },
       { t: 'list', items: [
@@ -104,8 +105,8 @@ export const POSTS: Post[] = [
 
       { t: 'faq', items: [
         [`¿Qué es ${MOSQUITO_BEACH.title}?`, `Es el segundo álbum de Rafa Trujillo (rafatrujillo), artista colombiano de indie pop-rock. Explora la adultez, la memoria, las amistades, Bogotá, los home studios, las colaboraciones y el regreso al niño interior, como un recorrido que va del atardecer a la noche.`],
-        [`¿Cuál es el primer sencillo de ${MOSQUITO_BEACH.title}?`, `«${LATEST_RELEASE.title}» (${LATEST_RELEASE.credit}), publicado el ${LATEST_RELEASE.releaseLabel}.`],
-        [`¿Cuándo sale «${nextTitle}»?`, 'El 27 de noviembre de 2026, en Spotify, Apple Music, YouTube y las demás plataformas.'],
+        [`¿Cuál es el primer sencillo de ${MOSQUITO_BEACH.title}?`, `«${BORRACHO_Y_LOCO.title}» (${BORRACHO_Y_LOCO.credit}), publicado el ${BORRACHO_Y_LOCO.releaseLabel}.`],
+        [`¿Cuál es el segundo sencillo de ${MOSQUITO_BEACH.title}?`, `«${nextTitle}», publicado el ${LATEST_RELEASE.releaseLabel} en Spotify, Apple Music, YouTube y las demás plataformas.`],
         ['¿Cuál fue el primer álbum de Rafa Trujillo?', '*Ya no es mi canción, y otras películas*, publicado en 2025.'],
       ] },
     ],
@@ -114,18 +115,18 @@ export const POSTS: Post[] = [
   // ───────────────────────────── 2 ─────────────────────────────
   {
     slug: 'historia-borracho-y-loco-rafatrujillo-equo',
-    title: `«${LATEST_RELEASE.title}»: la historia detrás de la canción de rafatrujillo y Equo`,
-    seoTitle: `${LATEST_RELEASE.title}: la historia de la canción | Rafa Trujillo y Equo`,
-    description: `La historia detrás de «${LATEST_RELEASE.title}», la canción de Rafa Trujillo (rafatrujillo) y Equo: cómo nació, quiénes la grabaron y por qué abre ${MOSQUITO_BEACH.title}.`,
+    title: `«${BORRACHO_Y_LOCO.title}»: la historia detrás de la canción de rafatrujillo y Equo`,
+    seoTitle: `${BORRACHO_Y_LOCO.title}: la historia de la canción | Rafa Trujillo y Equo`,
+    description: `La historia detrás de «${BORRACHO_Y_LOCO.title}», la canción de Rafa Trujillo (rafatrujillo) y Equo: cómo nació, quiénes la grabaron y por qué abre ${MOSQUITO_BEACH.title}.`,
     dek: 'Una canción escrita entre dos amigos, grabada entre Bogotá y Manizales, que abre una etapa nueva.',
     category: 'Historia de una canción',
     keywords: ['Borracho y Loco', 'Borracho y Loco historia', 'Borracho y Loco letra', 'rafatrujillo Equo', 'Rafa Trujillo', 'Sergio Hoyos', 'Equo Nombre y Apellido', 'canción indie colombiana'],
     date: '2026-11-24',
-    cover: LATEST_RELEASE.cover,
+    cover: BORRACHO_Y_LOCO.cover,
     coverAlt: 'Portada de «Borracho y Loco»: Rafa Trujillo y Sergio Hoyos caminando con guitarras por un sendero entre árboles',
     coverPosition: 'center 55%',
     blocks: [
-      { t: 'p', text: `Hay canciones que se escriben solas y otras que se escriben entre dos. **«${LATEST_RELEASE.title}»** es de las segundas: la escribí con **Sergio Hoyos**, mi compañero en **Equo**, y salió el ${LATEST_RELEASE.releaseLabel} como el primer sencillo de *${MOSQUITO_BEACH.title}*, mi segundo álbum. Soy Rafa Trujillo —rafatrujillo en las plataformas— y esta es la historia detrás de la canción.` },
+      { t: 'p', text: `Hay canciones que se escriben solas y otras que se escriben entre dos. **«${BORRACHO_Y_LOCO.title}»** es de las segundas: la escribí con **Sergio Hoyos**, mi compañero en **Equo**, y salió el ${BORRACHO_Y_LOCO.releaseLabel} como el primer sencillo de *${MOSQUITO_BEACH.title}*, mi segundo álbum. Soy Rafa Trujillo —rafatrujillo en las plataformas— y esta es la historia detrás de la canción.` },
 
       { t: 'h2', id: 'equo', text: 'Equo: el proyecto que se acaba y vuelve a empezar' },
       { t: 'p', text: 'Equo nació de una amistad de colegio en Manizales. Sergio y yo empezamos a hacer música juntos entre guitarras, composiciones y estudios improvisados, y la música se volvió uno de nuestros idiomas.' },
@@ -133,22 +134,22 @@ export const POSTS: Post[] = [
       { t: 'quote', text: 'Equo se ha acabado tantas veces que ya suena chistoso.' },
       { t: 'p', text: 'Pero cada tanto volvemos a juntarnos y escribimos otra canción que nos encanta. La primera fue **«Nombre y Apellido»** en 2021, que superó las 175.000 reproducciones en Spotify. Después vino **«El Flamenquillo»** en 2024. Y ahora, **«Borracho y Loco»**.' },
 
-      { t: 'h2', id: 'como-nacio', text: `Cómo nació «${LATEST_RELEASE.title}»` },
+      { t: 'h2', id: 'como-nacio', text: `Cómo nació «${BORRACHO_Y_LOCO.title}»` },
       { t: 'p', text: 'Con esta canción me quise **salir un poco del estilo** de las dos anteriores, pero sin perder lo que las hacía nuestras: **el humor y lo pegajoso**.' },
-      { t: 'lyrics', song: LATEST_RELEASE.title, href: '/#letra-borracho-y-loco', lines: ['Aunque digan que soy un borracho', 'No soy así'] },
+      { t: 'lyrics', song: BORRACHO_Y_LOCO.title, href: '/#letra-borracho-y-loco', lines: ['Aunque digan que soy un borracho', 'No soy así'] },
       { t: 'p', text: 'El coro lo resume todo: **perder el freno, pensar en alguien y ponerse sentimental**. Es una canción de fiesta, sí, pero también de esa honestidad rara que aparece cuando ya es tarde y uno dice lo que en otro momento se habría guardado. Puedes [leer la letra completa aquí](/#letra-borracho-y-loco).' },
 
       { t: 'h2', id: 'grabacion', text: 'La grabación: entre Bogotá y Manizales' },
       { t: 'p', text: '«Borracho y Loco» la **produje yo** y la grabamos en Bogotá, menos las voces de Sergio, que grabamos en Manizales. Toqué todos los instrumentos, excepto el bajo, que grabó **Juan Fernando Rodríguez**. La mezcla y el máster los hizo **Gerónimo Salazar**, con quien trabajo desde mi primer EP.' },
       { t: 'facts', title: 'Ficha de la canción', items: [
-        ['Canción', `«${LATEST_RELEASE.title}»`],
-        ['Artistas', LATEST_RELEASE.credit],
+        ['Canción', `«${BORRACHO_Y_LOCO.title}»`],
+        ['Artistas', BORRACHO_Y_LOCO.credit],
         ['Composición', 'Rafa Trujillo y Sergio Hoyos'],
         ['Producción', 'Rafa Trujillo'],
         ['Bajo', 'Juan Fernando Rodríguez'],
         ['Mezcla y máster', 'Gerónimo Salazar'],
         ['Grabación', 'Bogotá y Manizales'],
-        ['Lanzamiento', LATEST_RELEASE.releaseLabel],
+        ['Lanzamiento', BORRACHO_Y_LOCO.releaseLabel],
         ['Álbum', `${MOSQUITO_BEACH.title} (primer sencillo)`],
       ] },
       { t: 'p', text: 'Producirla yo mismo fue posible gracias a lo que aprendí en mi primer álbum. Con «Suenan las alarmas» produje por primera vez una canción de principio a fin; con «Borracho y Loco» volví a producir yo mismo, esta vez una canción hecha a cuatro manos.' },
@@ -156,17 +157,17 @@ export const POSTS: Post[] = [
       { t: 'h2', id: 'por-que-con-equo', text: '¿Por qué salió como rafatrujillo x Equo?' },
       { t: 'p', text: `Aunque es el primer sencillo de *${MOSQUITO_BEACH.title}*, un disco de rafatrujillo, quise que saliera **en colaboración con Equo**. Por dos razones: para **hacerle un homenaje al grupo** y para que la canción llegara a **todas esas personas que todavía aman a Equo** y siguen escuchando «Nombre y Apellido».` },
       { t: 'p', text: 'Si llegaste a mi música por Equo, bienvenido: esta canción es un puente entre las dos cosas.' },
-      { t: 'video', id: LATEST_RELEASE.youtubeId, title: `${LATEST_RELEASE.title} — ${LATEST_RELEASE.credit} (video oficial)` },
+      { t: 'video', id: BORRACHO_Y_LOCO.youtubeId, title: `${BORRACHO_Y_LOCO.title} — ${BORRACHO_Y_LOCO.credit} (video oficial)` },
 
       { t: 'h2', id: 'el-comienzo-de-mosquito-beach', text: `El comienzo de ${MOSQUITO_BEACH.title}` },
       { t: 'p', text: `«Borracho y Loco» abre oficialmente *${MOSQUITO_BEACH.title}*, un álbum sobre la adultez, la memoria, las amistades y el regreso al niño interior. Tenía sentido empezar con una canción hecha con un amigo de toda la vida. Si quieres saber de qué va el disco y qué canción viene ahora, lee [todo sobre ${MOSQUITO_BEACH.title} y «${nextTitle}»](/blog/mosquito-beach-segundo-album-rafa-trujillo-asi-no-es-parie).` },
-      { t: 'listen', title: `Escucha «${LATEST_RELEASE.title}»`, text: 'Disponible en todas las plataformas.', spotify: LATEST_RELEASE.spotifyUrl, apple: LATEST_RELEASE.appleMusicUrl, youtube: `https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}` },
+      { t: 'listen', title: `Escucha «${BORRACHO_Y_LOCO.title}»`, text: 'Disponible en todas las plataformas.', spotify: BORRACHO_Y_LOCO.spotifyUrl, apple: BORRACHO_Y_LOCO.appleMusicUrl, youtube: `https://www.youtube.com/watch?v=${BORRACHO_Y_LOCO.youtubeId}` },
 
       { t: 'faq', items: [
-        [`¿Quién escribió «${LATEST_RELEASE.title}»?`, 'Rafa Trujillo (rafatrujillo) y Sergio Hoyos, los dos integrantes de Equo.'],
-        [`¿De qué álbum es «${LATEST_RELEASE.title}»?`, `Es el primer sencillo de ${MOSQUITO_BEACH.title}, el segundo álbum de rafatrujillo, publicado como ${LATEST_RELEASE.credit} el ${LATEST_RELEASE.releaseLabel}.`],
+        [`¿Quién escribió «${BORRACHO_Y_LOCO.title}»?`, 'Rafa Trujillo (rafatrujillo) y Sergio Hoyos, los dos integrantes de Equo.'],
+        [`¿De qué álbum es «${BORRACHO_Y_LOCO.title}»?`, `Es el primer sencillo de ${MOSQUITO_BEACH.title}, el segundo álbum de rafatrujillo, publicado como ${BORRACHO_Y_LOCO.credit} el ${BORRACHO_Y_LOCO.releaseLabel}.`],
         ['¿Qué es Equo?', 'Equo es el proyecto de Sergio Hoyos y Rafa Trujillo, nacido de una amistad de colegio en Manizales. Sus canciones son «Nombre y Apellido» (2021), «El Flamenquillo» (2024) y «Borracho y Loco» (2026).'],
-        [`¿Dónde escuchar «${LATEST_RELEASE.title}»?`, 'En Spotify, Apple Music y YouTube, donde tiene video oficial.'],
+        [`¿Dónde escuchar «${BORRACHO_Y_LOCO.title}»?`, 'En Spotify, Apple Music y YouTube, donde tiene video oficial.'],
       ] },
     ],
   },

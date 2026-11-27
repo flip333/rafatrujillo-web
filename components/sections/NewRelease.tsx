@@ -4,8 +4,7 @@ import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { GhostText }    from '@/components/shared/GhostText'
 import { PlayButton }   from '@/components/shared/PlayButton'
 import { Rich }         from '@/components/shared/Rich'
-import { NextReleaseInvite } from '@/components/shared/NextReleaseInvite'
-import { LATEST_RELEASE, MOSQUITO_BEACH, SPOTIFY_URIS } from '@/lib/artist-data'
+import { LATEST_RELEASE, MOSQUITO_BEACH, SPOTIFY_URIS, getLyrics } from '@/lib/artist-data'
 import { t, type Locale } from '@/lib/i18n'
 
 const LABEL: React.CSSProperties = {
@@ -38,6 +37,7 @@ const EM_IN_ITALIC: React.CSSProperties = { fontStyle: 'normal', color: 'var(--r
 export function NewRelease({ locale = 'es' }: { locale?: Locale }) {
   const c = t(locale).latest
   const vars = { mb: MOSQUITO_BEACH.title, title: LATEST_RELEASE.title }
+  const lyricsSlug = getLyrics(LATEST_RELEASE.title) ? LATEST_RELEASE.title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : null
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto' }} className="relative">
@@ -48,10 +48,10 @@ export function NewRelease({ locale = 'es' }: { locale?: Locale }) {
           <p style={{ ...LABEL, marginBottom: '2rem' }}>{c.label}</p>
         </ScrollReveal>
 
-        {/* ── Borracho y Loco ── */}
+        {/* ── Último lanzamiento ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center mb-24">
           <ScrollReveal delay={0.08} variant="image" className="media-clean img-lift img-parallax">
-            <div style={{ position: 'relative', aspectRatio: '1289 / 1177', width: '100%', overflow: 'clip' }}>
+            <div style={{ position: 'relative', aspectRatio: '1 / 1', width: '100%', overflow: 'clip' }}>
               <Image
                 src={LATEST_RELEASE.cover}
                 alt={`${c.coverAlt} “${LATEST_RELEASE.title}” — ${LATEST_RELEASE.credit}`}
@@ -105,13 +105,15 @@ export function NewRelease({ locale = 'es' }: { locale?: Locale }) {
                   {c.video}
                 </Link>
               </div>
-              <a
-                href="#letra-borracho-y-loco"
-                className="lyrics-link self-start py-2"
-                style={{ ...LABEL, color: 'var(--rafa-accent)' }}
-              >
-                {c.lyrics}
-              </a>
+              {lyricsSlug && (
+                <a
+                  href={`#letra-${lyricsSlug}`}
+                  className="lyrics-link self-start py-2"
+                  style={{ ...LABEL, color: 'var(--rafa-accent)' }}
+                >
+                  {c.lyrics}
+                </a>
+              )}
             </div>
           </ScrollReveal>
         </div>
@@ -147,11 +149,6 @@ export function NewRelease({ locale = 'es' }: { locale?: Locale }) {
             </div>
           </ScrollReveal>
         </div>
-
-        {/* ── Próximo sencillo de Mosquito Beach ── */}
-        <ScrollReveal delay={0.12}>
-          <NextReleaseInvite locale={locale} />
-        </ScrollReveal>
       </div>
     </div>
   )

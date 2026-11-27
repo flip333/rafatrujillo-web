@@ -12,11 +12,11 @@ export const FAQ: Record<Locale, { q: string; a: string }[]> = {
     },
     {
       q: '¿Cuál es el último lanzamiento de rafatrujillo?',
-      a: 'El último lanzamiento de rafatrujillo es "Borracho y Loco" (rafatrujillo x Equo), publicado el 25 de septiembre de 2026. Es el primer sencillo de Mosquito Beach, su segundo álbum, y está disponible en Spotify, Apple Music y YouTube, donde tiene video oficial.',
+      a: 'El último lanzamiento de rafatrujillo es "Así no es (Parié)", publicado el 27 de noviembre de 2026. Es el segundo sencillo de Mosquito Beach, su segundo álbum, después de "Borracho y Loco" (rafatrujillo x Equo), y está disponible en todas las plataformas y en YouTube, donde tiene videoclip oficial.',
     },
     {
       q: '¿Qué es Mosquito Beach?',
-      a: 'Mosquito Beach es el segundo álbum de rafatrujillo (2026). Explora la adultez, la memoria, las amistades, Bogotá, los home studios, las colaboraciones y el regreso al niño interior. Cada canción representa un momento de un tránsito que va del atardecer a la noche. Su primer sencillo es "Borracho y Loco", junto a Equo.',
+      a: 'Mosquito Beach es el segundo álbum de rafatrujillo (2026). Explora la adultez, la memoria, las amistades, Bogotá, los home studios, las colaboraciones y el regreso al niño interior. Cada canción representa un momento de un tránsito que va del atardecer a la noche. Su primer sencillo es "Borracho y Loco", junto a Equo, y el segundo es "Así no es (Parié)".',
     },
     {
       q: '¿Qué es Equo?',
@@ -46,11 +46,11 @@ export const FAQ: Record<Locale, { q: string; a: string }[]> = {
     },
     {
       q: 'What is rafatrujillo’s latest release?',
-      a: 'rafatrujillo’s latest release is "Borracho y Loco" (rafatrujillo x Equo), released on September 25, 2026. It is the first single from Mosquito Beach, his second album, and it is available on Spotify, Apple Music and YouTube, where it has an official music video.',
+      a: 'rafatrujillo’s latest release is "Así no es (Parié)", released on November 27, 2026. It is the second single from Mosquito Beach, his second album, after "Borracho y Loco" (rafatrujillo x Equo), and it is available on all platforms and on YouTube, where it has an official music video.',
     },
     {
       q: 'What is Mosquito Beach?',
-      a: 'Mosquito Beach is rafatrujillo’s second album (2026). It explores adulthood, memory, friendship, Bogotá, home studios, collaboration and the return to the inner child. Each song captures a moment in a journey from sunset into the night. Its first single is "Borracho y Loco", with Equo.',
+      a: 'Mosquito Beach is rafatrujillo’s second album (2026). It explores adulthood, memory, friendship, Bogotá, home studios, collaboration and the return to the inner child. Each song captures a moment in a journey from sunset into the night. Its first single is "Borracho y Loco", with Equo, and the second is "Así no es (Parié)".',
     },
     {
       q: 'What is Equo?',

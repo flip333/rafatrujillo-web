@@ -1,5 +1,5 @@
 import {
-  ARTIST, LATEST_RELEASE, MOSQUITO_BEACH, ALBUM_DEBUT, EP_01, EQUO, SINGLES, YOUTUBE_VIDEOS, LYRICS,
+  ARTIST, LATEST_RELEASE, BORRACHO_Y_LOCO, MOSQUITO_BEACH, ALBUM_DEBUT, EP_01, EQUO, SINGLES, YOUTUBE_VIDEOS, LYRICS,
   normalizeTitle, isInstrumental,
 } from './artist-data'
 import { FAQ } from './faq'
@@ -20,7 +20,7 @@ export function buildLlmsTxt(full = false): string {
   push(
     `# rafatrujillo`,
     '',
-    `> ${strip(es.about.lead)} Nuevo sencillo: "${LATEST_RELEASE.title}" (${LATEST_RELEASE.credit}, ${LATEST_RELEASE.releaseDate}), primer adelanto de ${MOSQUITO_BEACH.title}, su segundo álbum.`,
+    `> ${strip(es.about.lead)} Nuevo sencillo: "${LATEST_RELEASE.title}" (${LATEST_RELEASE.credit}, ${LATEST_RELEASE.releaseDate}), segundo sencillo de ${MOSQUITO_BEACH.title}, su segundo álbum.`,
     '',
     `- Nombre artístico: rafatrujillo (siempre en minúsculas y unido). Nombre: ${ARTIST.fullName}.`,
     `- Origen: ${ARTIST.city}, ${ARTIST.country}. Género: ${ARTIST.genre}. Formación en cine.`,
@@ -33,9 +33,9 @@ export function buildLlmsTxt(full = false): string {
     ...[...es.about.body, ...es.about.timeline].map(p => strip(p)).flatMap(p => [p, '']),
     `## Último lanzamiento`,
     '',
-    `- [${LATEST_RELEASE.title} — ${LATEST_RELEASE.credit} (Spotify)](${LATEST_RELEASE.spotifyUrl}): publicado el ${LATEST_RELEASE.releaseDate}. Primer sencillo de ${MOSQUITO_BEACH.title}.`,
-    `- [${LATEST_RELEASE.title} (Apple Music)](${LATEST_RELEASE.appleMusicUrl})`,
-    `- [${LATEST_RELEASE.title} — video oficial (YouTube)](https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId})`,
+    `- [${LATEST_RELEASE.title} (Spotify)](${LATEST_RELEASE.spotifyUrl})`,
+    `- [${LATEST_RELEASE.title} — video oficial (YouTube)](https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}): publicado el ${LATEST_RELEASE.releaseDate}. Segundo sencillo de ${MOSQUITO_BEACH.title}.`,
+    `- [${BORRACHO_Y_LOCO.title} — ${BORRACHO_Y_LOCO.credit} (Spotify)](${BORRACHO_Y_LOCO.spotifyUrl}): publicado el ${BORRACHO_Y_LOCO.releaseDate}. Primer sencillo de ${MOSQUITO_BEACH.title}.`,
     '',
     `## ${MOSQUITO_BEACH.title} (segundo álbum, ${MOSQUITO_BEACH.year})`,
     '',
@@ -52,7 +52,8 @@ export function buildLlmsTxt(full = false): string {
     '',
     `### Sencillos`,
     '',
-    `- ${LATEST_RELEASE.title} — ${LATEST_RELEASE.credit} (2026)`,
+    `- ${LATEST_RELEASE.title} (2026)`,
+    `- ${BORRACHO_Y_LOCO.title} — ${BORRACHO_Y_LOCO.credit} (2026)`,
     ...SINGLES.map(s => `- ${s.title} (${s.year})`),
     '',
     `## Equo`,
@@ -87,7 +88,7 @@ export function buildLlmsTxt(full = false): string {
   if (full) {
     push(`## Letras`, '', `Todas las letras son de rafatrujillo (música y letras por rafatrujillo).`, '')
     const seen = new Set<string>()
-    const titles = [LATEST_RELEASE.title, ...ALBUM_DEBUT.tracks.map(t => t.title), ...EP_01.tracks.map(t => t.title)]
+    const titles = [LATEST_RELEASE.title, BORRACHO_Y_LOCO.title, ...ALBUM_DEBUT.tracks.map(t => t.title), ...EP_01.tracks.map(t => t.title)]
     for (const title of titles) {
       const key = normalizeTitle(title)
       if (seen.has(key) || isInstrumental(title) || !LYRICS[key]) continue

@@ -1,5 +1,5 @@
 import 'server-only'
-import { ARTIST, LATEST_RELEASE, MOSQUITO_BEACH, NEXT_RELEASE, STORIES, ALBUM_DEBUT, EP_01, SINGLES, normalizeTitle } from '@/lib/artist-data'
+import { ARTIST, LATEST_RELEASE, BORRACHO_Y_LOCO, MOSQUITO_BEACH, NEXT_RELEASE, STORIES, ALBUM_DEBUT, EP_01, SINGLES, normalizeTitle } from '@/lib/artist-data'
 
 /* Cliente del Worker de Cloudflare "rafa-admin-services".
    La clave (ADMIN_SERVICES_TOKEN) vive solo en el servidor: el navegador
@@ -30,6 +30,7 @@ export function siteContext() {
   ALBUM_DEBUT.tracks.forEach(t => { if (!years.has(normalizeTitle(t.title))) years.set(normalizeTitle(t.title), ALBUM_DEBUT.year) })
   EP_01.tracks.forEach(t => { if (!years.has(normalizeTitle(t.title))) years.set(normalizeTitle(t.title), EP_01.year) })
   years.set(normalizeTitle(LATEST_RELEASE.title), MOSQUITO_BEACH.year)
+  years.set(normalizeTitle(BORRACHO_Y_LOCO.title), MOSQUITO_BEACH.year)
 
   const seen = new Set<string>()
   const songs = Object.entries(STORIES)
@@ -49,7 +50,7 @@ export function siteContext() {
 
 // Recupera el título con mayúsculas tal como aparece en la discografía
 function displayTitle(key: string): string {
-  const all = [LATEST_RELEASE.title, ...SINGLES.map(s => s.title), ...ALBUM_DEBUT.tracks.map(t => t.title), ...EP_01.tracks.map(t => t.title)]
+  const all = [LATEST_RELEASE.title, BORRACHO_Y_LOCO.title, ...SINGLES.map(s => s.title), ...ALBUM_DEBUT.tracks.map(t => t.title), ...EP_01.tracks.map(t => t.title)]
   const hit = all.find(t => normalizeTitle(t) === key)
   return hit ? hit.replace(/\s*\((?:versión|version)[^)]*\)/i, '') : key
 }

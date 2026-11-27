@@ -3,7 +3,7 @@ import { HomePage } from '@/components/HomePage'
 import { t } from '@/lib/i18n'
 
 export const metadata: Metadata = {
-  title: 'rafatrujillo — Colombian singer-songwriter & producer · “Borracho y Loco”',
+  title: 'rafatrujillo — Colombian singer-songwriter & producer · “Así no es (Parié)”',
   description: t('en').meta.description,
   alternates: { canonical: '/en', languages: { es: '/', en: '/en' } },
   openGraph: { locale: 'en_US', url: '/en', description: t('en').meta.description },

@@ -1,4 +1,4 @@
-import { ARTIST, LATEST_RELEASE, MOSQUITO_BEACH, ALBUM_DEBUT, EP_01, EQUO, YOUTUBE_VIDEOS, PRESS } from './artist-data'
+import { ARTIST, LATEST_RELEASE, BORRACHO_Y_LOCO, MOSQUITO_BEACH, ALBUM_DEBUT, EP_01, EQUO, YOUTUBE_VIDEOS, PRESS } from './artist-data'
 
 const SITE = 'https://rafatrujillo.xyz'
 const ID = {
@@ -6,7 +6,8 @@ const ID = {
   person:  `${SITE}/#rafa`,
   artist:  `${SITE}/#rafatrujillo`,
   equo:    `${SITE}/#equo`,
-  latest:  `${SITE}/#borracho-y-loco`,
+  latest:  `${SITE}/#asi-no-es-parie`,
+  borracho:`${SITE}/#borracho-y-loco`,
   mb:      `${SITE}/#mosquito-beach`,
   album:   `${SITE}/#ya-no-es-mi-cancion`,
   ep:      `${SITE}/#ep-01`,
@@ -68,7 +69,7 @@ export function buildJsonLd() {
         logo: `${SITE}/icon.png`,
         sameAs,
         album: [{ '@id': ID.mb }, { '@id': ID.album }, { '@id': ID.ep }],
-        track: { '@id': ID.latest },
+        track: [{ '@id': ID.borracho }, { '@id': ID.latest }],
       },
       {
         '@type': 'MusicGroup',
@@ -82,12 +83,23 @@ export function buildJsonLd() {
         '@type': 'MusicRecording',
         '@id': ID.latest,
         name: LATEST_RELEASE.title,
-        byArtist: [artistRef, { '@id': ID.equo }],
+        byArtist: artistRef,
         datePublished: LATEST_RELEASE.releaseDate,
         inAlbum: { '@id': ID.mb },
         url: LATEST_RELEASE.spotifyUrl,
-        sameAs: [LATEST_RELEASE.spotifyUrl, LATEST_RELEASE.appleMusicUrl, `https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}`],
+        sameAs: [LATEST_RELEASE.spotifyUrl, `https://www.youtube.com/watch?v=${LATEST_RELEASE.youtubeId}`],
         image: `${SITE}${LATEST_RELEASE.cover}`,
+      },
+      {
+        '@type': 'MusicRecording',
+        '@id': ID.borracho,
+        name: BORRACHO_Y_LOCO.title,
+        byArtist: [artistRef, { '@id': ID.equo }],
+        datePublished: BORRACHO_Y_LOCO.releaseDate,
+        inAlbum: { '@id': ID.mb },
+        url: BORRACHO_Y_LOCO.spotifyUrl,
+        sameAs: [BORRACHO_Y_LOCO.spotifyUrl, BORRACHO_Y_LOCO.appleMusicUrl, `https://www.youtube.com/watch?v=${BORRACHO_Y_LOCO.youtubeId}`],
+        image: `${SITE}${BORRACHO_Y_LOCO.cover}`,
       },
       {
         '@type': 'MusicAlbum',
@@ -96,7 +108,7 @@ export function buildJsonLd() {
         byArtist: artistRef,
         albumProductionType: 'StudioAlbum',
         description: 'Segundo álbum de rafatrujillo (2026): adultez, memoria, amistades, Bogotá, home studios y el regreso al niño interior.',
-        track: { '@id': ID.latest },
+        track: [{ '@id': ID.borracho }, { '@id': ID.latest }],
       },
       {
         '@type': 'MusicAlbum',
